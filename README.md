@@ -1,2 +1,3 @@
-Project 1 Score:
-	HW 1 Score:
+| Attempt | #1    | #2    |
+| :---:   | :---: | :---: |
+| Seconds | 301   | 283   |
