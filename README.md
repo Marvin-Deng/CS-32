@@ -1,4 +1,14 @@
-| Assignment    | Score   |
+| Homework | Score   |
 | :---: | :---: |
-| Project 1   |    |
-| HW 1   |    |
+| 1  |    |
+| 2  |    |
+| 3  |    |
+| 4  |    |
+| 5  |    |
+
+| Project   | Score   |
+| :---: | :---: |
+| 1  |    |
+| 2  |    |
+| 3  |    |
+| 4  |    |
