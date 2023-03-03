@@ -21,6 +21,7 @@ public:
 
 	StudentWorld* getWorld() const;
 
+
 private:
 	StudentWorld* m_world;
 	bool alive;
@@ -30,16 +31,24 @@ class Player : public Actor
 {
 public:
 	Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum)
-		: Actor(world, imageID, startX, startY), ticks_to_move(0), currDir(right), waiting(true), pNum(playerNum), vortex(0), coins(0), stars(0)
+		: Actor(world, imageID, startX, startY), ticks_to_move(0), currDir(right), waiting(true), pNum(playerNum), vortex(0), coins(0), stars(0), isNew(true)
 	{}
 
 	virtual void doSomething();
 
 	void updateCoins(int c);
 
+	void updateStars();
+
 	int getPlayerCoins() const;
 
 	bool getWaiting() const;
+
+	bool getIsNew() const;
+
+	void resetIsNew();
+
+	void setDirection(int dir);
 
 private:
 	bool isValidPos() const;
@@ -52,6 +61,7 @@ private:
 	int vortex;
 	int coins;
 	int stars;
+	bool isNew;
 };
 
 class ActivatingObject : public Actor {
@@ -61,7 +71,9 @@ public:
 		: Actor(world, imageID, startX, startY, direction, depth), active(true)
 	{}
 
-	bool onSquare(Player* player);
+	bool onObject(Player* player);
+
+	bool passingObject(Player* player);
 
 	void resetActive();
 
@@ -99,12 +111,14 @@ class DirectionSquare : public ActivatingObject
 {
 public:
 	DirectionSquare(StudentWorld* world, int imageID, int startX, int startY, int direction)
-		: ActivatingObject(world, imageID, startX, startY, direction)
+		: ActivatingObject(world, imageID, startX, startY, direction), dir(direction)
 	{}
 	virtual void doSomething();
 
-private:
+	int getDir();
 
+private:
+	int dir;
 };
 
 class BankSquare : public ActivatingObject

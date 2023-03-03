@@ -34,6 +34,7 @@ void Player::doSomething() {
 			int die_roll = randInt(1, 10);
 			ticks_to_move = die_roll * 8;
 			waiting = false;
+			//isNew = true;
 		}
 		else if (action == ACTION_FIRE) {
 			
@@ -66,7 +67,7 @@ void Player::doSomething() {
 	}
 }
 
-bool Player::isValidPos() const{
+bool Player::isValidPos() const {
 	int newX, newY;
 	getPositionInThisDirection(currDir, SPRITE_WIDTH, newX, newY);
 
@@ -121,35 +122,71 @@ void Player::updateCoins(int c) {
 	std::cout << coins << "  ";
 }
 
+void Player::updateStars() {
+	if (coins < 20) {
+		return;
+	}
+	coins -= 20;
+	stars++;
+	getWorld()->playSound(SOUND_GIVE_STAR);
+	std::cout << stars << "  ";
+}
+
+
 bool Player::getWaiting() const {
 	return waiting;
+}
+
+void Player::setDirection(int dir) {
+	currDir = dir;
 }
 
 int Player::getPlayerCoins() const {
 	return coins;
 }
 
+bool Player::getIsNew() const {
+	return isNew;
+}
+
+void Player::resetIsNew() {
+	isNew = false;
+}
+
 //// ACTIVATING OBJECT ////
 
-bool ActivatingObject::onSquare(Player* player) {
+bool ActivatingObject::onObject(Player* player) {
 	int playerX = player->getX(), playerY = player->getY();
 	int objectX = getX(), objectY = getY();
 	bool waiting = player->getWaiting();
 	
-	// Conditons for acitvating square:
-	// - Pixel coordinates of player and square must match
+	// Conditons for activating square:
+	// - Pixel coordinates of player and object must match
 	// - The player must be in the waiting mode
-	// - The square must be active
+	// - The player must be new
 
-	if (playerX == objectX && playerY == objectY && waiting && active) {
-		active = false; // Sets the square to inactive
+	if (playerX == objectX && playerY == objectY && waiting && player->getIsNew()) {
+		player->resetIsNew();
 		return true;
 	} 
-	if (!waiting) {
-		active = true;
-	}
 	return false;
 }   
+
+bool ActivatingObject::passingObject(Player* player) {
+	int playerX = player->getX(), playerY = player->getY();
+	int objectX = getX(), objectY = getY();
+
+	// Conditons for activating square:
+	// - Pixel coordinates of player and object must match
+	// - The player must be in the waiting mode
+	// - The player must be new
+
+	if (playerX == objectX && playerY == objectY && player->getIsNew()) {
+		player->resetIsNew();
+		return true;
+	}
+	return false;
+}
 
 void ActivatingObject::resetActive() {
 	active = true;
@@ -162,13 +199,15 @@ void CoinSquare::doSomething() {
 		return;
 	}
 
+	Player* tempPeach = getWorld()->getPeach();
+	Player* tempYoshi = getWorld()->getYoshi();
 	// Determine if Peach or Yoshi are on the square
-	if (onSquare(getWorld()->getPeach())) {
-		getWorld()->getPeach()->updateCoins(coinsGiven);
+	if (onObject(tempPeach)) {
+		tempPeach->updateCoins(coinsGiven);
 	}
-
-	if (onSquare(getWorld()->getYoshi())) {
-		getWorld()->getYoshi()->updateCoins(coinsGiven);
+	
+	if (onObject(tempYoshi)) {
+		tempYoshi->updateCoins(coinsGiven);
 	}
 }
 
@@ -176,12 +215,35 @@ void CoinSquare::doSomething() {
 
 void StarSquare::doSomething() {
 
+	Player* tempPeach = getWorld()->getPeach();
+	Player* tempYoshi = getWorld()->getYoshi();
+	// Determine if Peach or Yoshi are on the square
+	if (onObject(tempPeach)) {
+		tempPeach->updateStars();
+	}
+	
+	if (onObject(tempYoshi)) {
+		tempYoshi->updateStars();
+	}
 }
 
 //// DIRECTION SQUARE ////
 
 void DirectionSquare::doSomething() {
+	Player* tempPeach = getWorld()->getPeach();
+	Player* tempYoshi = getWorld()->getYoshi();
+	// Determine if Peach or Yoshi are on the square
+	if (onObject(tempPeach)) {
+		tempPeach->updateStars();
+	}
+	
+	if (onObject(tempYoshi)) {
+		tempYoshi->updateStars();
+	}
+}
 
+int DirectionSquare::getDir() {
+	return dir;
 }
 
 //// BANK SQUARE ////
