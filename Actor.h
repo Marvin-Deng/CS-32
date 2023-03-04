@@ -3,6 +3,7 @@
 
 #include "GraphObject.h"
 #include <string>
+#include <set>
 
 // Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
 
@@ -40,17 +41,21 @@ public:
 	void changeMoveDir(int dir);
 	void playerTeleport();
 	void giveVortex();
-
 	int getPlayerCoins() const;
 	int getPlayerStars() const;
 	bool getWaiting() const;
+	void setWaiting(bool wait);
+	int getTicks() const;
+	void setTicks(int ticks);
 	bool getIsNew() const;
 	void resetIsNew();
+	int getMoveDir() const;
+	void setMoveDir(int dir);
 
 private:
-	bool isValidPos() const;
 	void updateValidMoveDirection();
 	void changeSpriteDirection();
+	std::set<int> validForkDirs();
 	int pNum;
 	int ticks_to_move;
 	int currDir;

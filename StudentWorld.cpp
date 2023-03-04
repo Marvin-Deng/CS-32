@@ -36,6 +36,8 @@ Board* StudentWorld::getBoard() const{
     return bd;
 } 
 
+//// BANK ////
+
 int StudentWorld::getBankCoins() const {
     return bank;
 }
@@ -53,6 +55,74 @@ void StudentWorld::resetBankCoins() {
 int StudentWorld::getCoinsTaken() const {
     return coinsTaken;
 }
+
+//// POSITION FUNCTIONS ////
+
+bool StudentWorld::isValidPos(int newX, int newY) const {
+
+    Board::GridEntry ge = bd->getContentsOf(newX / SPRITE_WIDTH, newY / SPRITE_HEIGHT);
+
+    switch (ge) {
+
+    case Board::empty:
+        return false;
+    default:
+        return true;
+    }
+}
+
+void StudentWorld::getRandomPoint(int currX, int currY, int& randX, int& randY) {
+    bool found = false;
+    while (!found) {
+        int randIdx = randInt(0, actors.size() - 1);
+        int newX = actors[randIdx]->getX();
+        int newY = actors[randIdx]->getY();
+        if (currX != newX && currY != newY) {
+            found = true;
+            randX = newX;
+            randY = newY;
+        }
+    }
+}
+
+void StudentWorld::swapPlayers() {
+    // Player* player1, Player* player2
+
+    cout << "Players swapped" << endl;
+    
+    // Swap position
+    int peachX = peach->getX(), peachY = peach->getY();
+    int yoshiX = yoshi->getX(), yoshiY = yoshi->getY();
+    peach->moveTo(yoshiX, yoshiY);
+    yoshi->moveTo(peachX, peachY);
+    
+    // Swap ticks
+    int peachT = peach->getTicks();
+    int yoshiT = yoshi->getTicks();
+    peach->setTicks(yoshiT);
+    yoshi->setTicks(peachT);
+
+    // Swap walk direction
+    int peachM = peach->getMoveDir();
+    int yoshiM = yoshi->getMoveDir();
+    peach->setMoveDir(yoshiM);
+    yoshi->setMoveDir(peachM);
+
+    // Swap sprite direction
+    int peachS = peach->getDirection();
+    int yoshiS = yoshi->getDirection();
+    peach->setDirection(yoshiS);
+    yoshi->setDirection(peachS);
+
+    // Swap waiting state
+    int peachW = peach->getWaiting();
+    int yoshiW = yoshi->getWaiting();
+    peach->setWaiting(yoshiW);
+    yoshi->setWaiting(peachW);
+}
+
+
+//// GAME FUNCTIONS ////
 
 int StudentWorld::init()
 {
@@ -116,6 +186,14 @@ int StudentWorld::init()
                 case Board::event_square:
                     actors.push_back(new EventSquare(this, IID_EVENT_SQUARE, xPos, yPos));
                     break;
+
+                case Board::bowser:
+                    actors.push_back(new CoinSquare(this, IID_BLUE_COIN_SQUARE, xPos, yPos, 3));
+                    break;
+
+                case Board::boo:
+                    actors.push_back(new CoinSquare(this, IID_BLUE_COIN_SQUARE, xPos, yPos, 3));
+                    break;
                 }
             }
         }
@@ -170,6 +248,6 @@ void StudentWorld::cleanUp()
 }
 
 StudentWorld::~StudentWorld() { 
-    // cleanUp();
+    cleanUp();
     delete bd;
 }

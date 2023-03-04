@@ -25,6 +25,10 @@ public:
   void resetBankCoins();
   int getCoinsTaken() const;
 
+  bool isValidPos(int newX, int newY) const;
+  void getRandomPoint(int currX, int currY, int& randX, int& randY);
+  void swapPlayers();
+
   virtual int init();
   virtual int move();
   virtual void cleanUp();
