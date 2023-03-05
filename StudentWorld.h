@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-
+class GameObject;
 // Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
 
 
@@ -27,7 +27,11 @@ public:
 
   bool isValidPos(int newX, int newY) const;
   void getRandomPoint(int currX, int currY, int& randX, int& randY);
-  void swapPlayers();
+
+  void swapPlayers(); // Event square
+  void swapCoinsStars(); // Boo
+
+  void addDroppingSquare(int x, int y);
 
   virtual int init();
   virtual int move();

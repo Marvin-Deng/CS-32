@@ -1,6 +1,7 @@
 #include "StudentWorld.h"
 #include "GameConstants.h"
 #include <string>
+#include <vector>
 #include <iostream>
 
 using namespace std;
@@ -71,6 +72,7 @@ bool StudentWorld::isValidPos(int newX, int newY) const {
     }
 }
 
+// must exclude vortex projectiles
 void StudentWorld::getRandomPoint(int currX, int currY, int& randX, int& randY) {
     bool found = false;
     while (!found) {
@@ -85,11 +87,9 @@ void StudentWorld::getRandomPoint(int currX, int currY, int& randX, int& randY) 
     }
 }
 
+// Event Square swap
 void StudentWorld::swapPlayers() {
-    // Player* player1, Player* player2
 
-    cout << "Players swapped" << endl;
-    
     // Swap position
     int peachX = peach->getX(), peachY = peach->getY();
     int yoshiX = yoshi->getX(), yoshiY = yoshi->getY();
@@ -102,17 +102,11 @@ void StudentWorld::swapPlayers() {
     peach->setTicks(yoshiT);
     yoshi->setTicks(peachT);
 
-    // Swap walk direction
+    // Swap walk and sprite direction
     int peachM = peach->getMoveDir();
     int yoshiM = yoshi->getMoveDir();
-    peach->setMoveDir(yoshiM);
-    yoshi->setMoveDir(peachM);
-
-    // Swap sprite direction
-    int peachS = peach->getDirection();
-    int yoshiS = yoshi->getDirection();
-    peach->setDirection(yoshiS);
-    yoshi->setDirection(peachS);
+    peach->changeMoveDir(yoshiM);
+    yoshi->changeMoveDir(peachM);
 
     // Swap waiting state
     int peachW = peach->getWaiting();
@@ -120,6 +114,34 @@ void StudentWorld::swapPlayers() {
     peach->setWaiting(yoshiW);
     yoshi->setWaiting(peachW);
 }
+
+// Boo coin swap
+void StudentWorld::swapCoinsStars() {
+    int swap = randInt(1, 1); // change to (1, 2)
+    if (swap == 1) { // Swap coins
+        int peachCoins = peach->getPlayerCoins();
+        int yoshiCoins = yoshi->getPlayerCoins();
+        peach->replaceCoins(yoshiCoins);
+        yoshi->replaceCoins(peachCoins);
+    }
+    else if (swap == 2){ // Swap stars
+        int peachStars = peach->getPlayerStars();
+        int yoshiStars = yoshi->getPlayerStars();
+        peach->replaceStars(yoshiStars);
+        yoshi->replaceStars(peachStars);
+    }
+}
+
+void StudentWorld::addDroppingSquare(int x, int y) {
+    for (Actor* actor : actors) {
+        if (actor->getX() == x && actor->getY() == y && actor->isSquare() && actor != nullptr) {
+            //delete actor;
+            actor = new DroppingSquare(this, IID_DROPPING_SQUARE, x, y);
+            
+        }
+    }
+}
+
 
 
 //// GAME FUNCTIONS ////
@@ -187,13 +209,20 @@ int StudentWorld::init()
                     actors.push_back(new EventSquare(this, IID_EVENT_SQUARE, xPos, yPos));
                     break;
 
-                case Board::bowser:
+                case Board::bowser: {
+                    vector<Actor*>::iterator p = actors.begin();
+                    actors.insert(p, new Bowser(this, IID_BOWSER, xPos, yPos));
                     actors.push_back(new CoinSquare(this, IID_BLUE_COIN_SQUARE, xPos, yPos, 3));
                     break;
-
-                case Board::boo:
+                }
+                                  
+                case Board::boo: {
+                    vector<Actor*>::iterator p = actors.begin();
+                    actors.insert(p, new Boo(this, IID_BOO, xPos, yPos));
                     actors.push_back(new CoinSquare(this, IID_BLUE_COIN_SQUARE, xPos, yPos, 3));
                     break;
+                }
+                    
                 }
             }
         }
@@ -204,9 +233,20 @@ int StudentWorld::init()
 
 int StudentWorld::move()
 {
-    setGameStatText("P1 Coins: " + to_string(peach->getPlayerCoins()) + " Stars: " + to_string(peach->getPlayerStars())
-        + " P2 Coins: " + to_string(yoshi->getPlayerCoins()) + " Stars: " + to_string(yoshi->getPlayerStars())
-        + " Bank: " + to_string(bank)
+    string pRoll = to_string(peach->getTicks() / 8);
+    string pStars = to_string(peach->getPlayerStars());
+    string pCoins = to_string(peach->getPlayerCoins());
+    string pVortex = peach->hasVortex() ? "VOR" : "";
+    string time = to_string(timeRemaining());
+    string bankAccount = to_string(bank);
+    string yRoll = to_string(yoshi->getTicks() / 8);
+    string yStars = to_string(yoshi->getPlayerStars());
+    string yCoins = to_string(yoshi->getPlayerCoins());
+    string yVortex = yoshi->hasVortex() ? "VOR" : "";
+    
+    setGameStatText(pVortex + " P1 Roll: " + pRoll + " Stars: " + pStars + " $$: " + pCoins +
+        " | Time: " + time + " | Bank: " + bankAccount +
+        " P2 Roll: " + yRoll + " Stars: " + yStars + " $$: " + yCoins + " " + yVortex
     );
 
     // Check if game is over
@@ -215,10 +255,11 @@ int StudentWorld::move()
         return GWSTATUS_NOT_IMPLEMENTED;
     }
 
-    // Ask players and acotrs ot do something
+    // Ask players and actors to do something
     peach->doSomething();
     yoshi->doSomething();
-    for (Actor* a : actors) {
+    for (int i = 0; i < actors.size(); i++) {
+        Actor* a = actors[i];
         if (a == nullptr) {
             continue;
         }
