@@ -91,7 +91,7 @@ void StudentWorld::getRandomPoint(int currX, int currY, int& randX, int& randY) 
 }
 
 bool StudentWorld::swapPlayers() {
-
+    cout << "hi";
     // Swap position
     int peachX = peach->getX(), peachY = peach->getY();
     int yoshiX = yoshi->getX(), yoshiY = yoshi->getY();
@@ -295,6 +295,7 @@ int StudentWorld::move()
             this->setFinalScore(yoshi->getPlayerStars(), yoshi->getPlayerCoins());
             return GWSTATUS_YOSHI_WON;
         }
+
         if (pCoins > yCoins) {
             this->setFinalScore(peach->getPlayerStars(), peach->getPlayerCoins());
             return GWSTATUS_PEACH_WON;
