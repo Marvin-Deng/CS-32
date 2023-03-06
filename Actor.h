@@ -110,7 +110,7 @@ public:
 
 	bool onObject(Player* player);
 	bool passingObject(Player* player);
-	
+
 	virtual bool isSquare() const = 0;
 	virtual bool canBeHit() const = 0;
 
@@ -155,7 +155,7 @@ public:
 
 	// Paused Counter
 	int getPauseCounter() const;
-	void setPauseCounter(int count); 
+	void setPauseCounter(int count);
 
 	virtual bool isSquare() const;
 	virtual bool canBeHit() const;
@@ -197,7 +197,7 @@ public:
 	virtual void leaveDropping();
 
 private:
-	
+
 };
 
 class Square : public ActivatingObject {

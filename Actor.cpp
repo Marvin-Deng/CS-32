@@ -109,7 +109,7 @@ void Player::doSomething() {
 		// Evaluate action key
 		int action = getWorld()->getAction(pNum);
 		if (action == ACTION_ROLL) {
-			int dice = randInt(8,8); // (1,10)
+			int dice = randInt(8, 8); // (1,10)
 			ticks_to_move = dice * 8;
 			waiting = false;
 			isNew = true;
@@ -128,7 +128,7 @@ void Player::doSomething() {
 	if (!waiting) {
 
 		if (getX() % SPRITE_WIDTH == 0 && getY() % SPRITE_HEIGHT == 0) {
-			if (!onDirSquare && isFork()) { 
+			if (!onDirSquare && isFork()) {
 				if (!evalDirKey()) {
 					return;
 				}
@@ -136,7 +136,7 @@ void Player::doSomething() {
 
 			// Check if Avatar can continue walking forward, change the movement direction if not valid
 			else if (!getWorld()->isValidPos(newX, newY)) {
-				currDir = validMoveDirection(currDir); 
+				currDir = validMoveDirection(currDir);
 				changeSpriteDirection(currDir);
 			}
 		}
@@ -206,7 +206,7 @@ void Player::increaseStars() {
 		return;
 	}
 	coins -= 20;
-	stars ++;
+	stars++;
 }
 
 void Player::deductStar() {
@@ -377,7 +377,7 @@ void Enemy::doSomething() {
 
 		pauseCounter--;
 		if (pauseCounter == 0) {
-			int dice = randInt(1, 1); // (1,10)
+			int dice = randInt(1, 10); // (1,10)
 			ticks = dice * 8;
 			currDir = getRandValidDir();
 			changeSpriteDirection(currDir);
@@ -401,9 +401,9 @@ void Enemy::doSomething() {
 				currDir = validMoveDirection(currDir);
 				changeSpriteDirection(currDir);
 			}
-		} 
+		}
 
-		moveAtAngle(currDir, 2); 
+		moveAtAngle(currDir, 2);
 		ticks--;
 		if (ticks == 0) {
 			paused = true;
@@ -548,7 +548,7 @@ void BankSquare::processAction(Player* player) {
 	if (onObject(player)) {
 		player->updateCoins(getWorld()->getBankCoins());
 		getWorld()->resetBankCoins();
-	} 
+	}
 	// Player is passing over bank square
 	else if (passingObject(player) && !player->getWaiting()) {
 		int coinsTaken = player->updateCoins(getWorld()->getCoinsTaken());
@@ -571,7 +571,7 @@ void EventSquare::processAction(Player* player) {
 	else if (event == 2) { // Position Swap
 		getWorld()->playSound(SOUND_PLAYER_TELEPORT);
 		if (getWorld()->swapPlayers()) {
-			//player->setIsNew(true);
+			player->setIsNew(true);
 		}
 	}
 	else if (event == 3) { // Give Vortex

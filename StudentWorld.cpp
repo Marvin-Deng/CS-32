@@ -7,12 +7,12 @@ using namespace std;
 
 GameWorld* createStudentWorld(string assetPath)
 {
-	return new StudentWorld(assetPath);
+    return new StudentWorld(assetPath);
 }
 
 
 StudentWorld::StudentWorld(string assetPath)
-: GameWorld(assetPath)
+    : GameWorld(assetPath)
 {
     peach = nullptr;
     yoshi = nullptr;
@@ -30,9 +30,9 @@ Player* StudentWorld::getYoshi() const {
     return yoshi;
 }
 
-Board* StudentWorld::getBoard() const{
+Board* StudentWorld::getBoard() const {
     return bd;
-} 
+}
 
 //// BANK ////
 
@@ -91,13 +91,13 @@ void StudentWorld::getRandomPoint(int currX, int currY, int& randX, int& randY) 
 }
 
 bool StudentWorld::swapPlayers() {
-    cout << "hi";
+
     // Swap position
     int peachX = peach->getX(), peachY = peach->getY();
     int yoshiX = yoshi->getX(), yoshiY = yoshi->getY();
     peach->moveTo(yoshiX, yoshiY);
     yoshi->moveTo(peachX, peachY);
-    
+
     // Swap ticks
     int peachT = peach->getTicks();
     int yoshiT = yoshi->getTicks();
@@ -131,7 +131,7 @@ void StudentWorld::swapCoinsStars() {
         peach->replaceCoins(yoshiCoins);
         yoshi->replaceCoins(peachCoins);
     }
-    else if (swap == 2){ // Swap stars
+    else if (swap == 2) { // Swap stars
         int peachStars = peach->getPlayerStars();
         int yoshiStars = yoshi->getPlayerStars();
         peach->replaceStars(yoshiStars);
@@ -154,11 +154,14 @@ void StudentWorld::addVortex(int x, int y, int dir) {
     int addX = 0, addY = 0;
     if (dir == 0) {
         addX = SPRITE_WIDTH;
-    } else if (dir == 180) {
+    }
+    else if (dir == 180) {
         addX = -SPRITE_WIDTH;
-    } else if (dir == 90) {
+    }
+    else if (dir == 90) {
         addY = SPRITE_HEIGHT;
-    } else if (dir == 270) {
+    }
+    else if (dir == 270) {
         addY = -SPRITE_HEIGHT;
     }
     actors.push_back(new Vortex(this, IID_VORTEX, x + addX, y + addY, dir));
@@ -247,14 +250,14 @@ int StudentWorld::init()
                     actors.push_back(new CoinSquare(this, IID_BLUE_COIN_SQUARE, xPos, yPos, 3));
                     break;
                 }
-                                  
+
                 case Board::boo: {
                     vector<Actor*>::iterator p = actors.begin();
                     actors.insert(p, new Boo(this, IID_BOO, xPos, yPos));
                     actors.push_back(new CoinSquare(this, IID_BLUE_COIN_SQUARE, xPos, yPos, 3));
                     break;
                 }
-                    
+
                 }
             }
         }
@@ -275,16 +278,42 @@ int StudentWorld::move()
     string yStars = to_string(yoshi->getPlayerStars());
     string yCoins = to_string(yoshi->getPlayerCoins());
     string yVortex = yoshi->hasVortex() ? "VOR" : "";
-    
+
     setGameStatText(pVortex + " P1 Roll: " + pRoll + " Stars: " + pStars + " $$: " + pCoins +
         " | Time: " + time + " | Bank: " + bankAccount +
-        " P2 Roll: " + yRoll + " Stars: " + yStars + " $$: " + yCoins + " " + yVortex
+        " | P2 Roll: " + yRoll + " Stars: " + yStars + " $$: " + yCoins + " " + yVortex
     );
 
     // Check if game is over
     if (timeRemaining() <= 0) {
         playSound(SOUND_GAME_FINISHED);
-        return GWSTATUS_NOT_IMPLEMENTED;
+        if (pStars > yStars) {
+            this->setFinalScore(peach->getPlayerStars(), peach->getPlayerCoins());
+            return GWSTATUS_PEACH_WON;
+        }
+        else if (yStars > pStars) {
+            this->setFinalScore(yoshi->getPlayerStars(), yoshi->getPlayerCoins());
+            return GWSTATUS_YOSHI_WON;
+        }
+        if (pCoins > yCoins) {
+            this->setFinalScore(peach->getPlayerStars(), peach->getPlayerCoins());
+            return GWSTATUS_PEACH_WON;
+        }
+        else if (yCoins > pCoins) {
+            this->setFinalScore(yoshi->getPlayerStars(), yoshi->getPlayerCoins());
+            return GWSTATUS_YOSHI_WON;
+        }
+        else {
+            int randWinner = randInt(1, 2);
+            if (randWinner == 1) {
+                this->setFinalScore(peach->getPlayerStars(), peach->getPlayerCoins());
+                return GWSTATUS_PEACH_WON;
+            }
+            else if (randWinner == 2) {
+                this->setFinalScore(yoshi->getPlayerStars(), yoshi->getPlayerCoins());
+                return GWSTATUS_YOSHI_WON;
+            }
+        }
     }
 
     // Ask players and actors to do something
@@ -315,13 +344,13 @@ void StudentWorld::cleanUp()
     actors.clear(); // clears all elements of vector, makes size 0
 
     // Delete players
-    delete peach; 
+    delete peach;
     delete yoshi;
     peach = nullptr;
     yoshi = nullptr;
 }
 
-StudentWorld::~StudentWorld() { 
+StudentWorld::~StudentWorld() {
     //cleanUp();
     delete bd;
 }
