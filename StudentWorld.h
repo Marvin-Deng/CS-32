@@ -8,7 +8,6 @@
 #include <vector>
 
 class GameObject;
-// Students:  Add code to this file, StudentWorld.cpp, Actor.h, and Actor.cpp
 
 
 class StudentWorld : public GameWorld
@@ -27,11 +26,12 @@ public:
 
   bool isValidPos(int newX, int newY) const;
   void getRandomPoint(int currX, int currY, int& randX, int& randY);
-
+  
   void swapPlayers(); // Event square
   void swapCoinsStars(); // Boo
-
-  void addDroppingSquare(int x, int y);
+  void addDroppingSquare(int x, int y); // Bowser
+  void addVortex(int x, int y, int dir); // Player
+  bool hitByVortex(int x, int y) const; // Vortex
 
   virtual int init();
   virtual int move();

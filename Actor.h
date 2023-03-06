@@ -4,38 +4,37 @@
 #include "GraphObject.h"
 #include <string>
 
-// Students:  Add code to this file, Actor.cpp, StudentWorld.h, and StudentWorld.cpp
-
 class StudentWorld;
 
 class Actor : public GraphObject
 {
 public:
 	Actor(StudentWorld* world, int imageID, int startX, int startY, int direction = right, int depth = 0)
-		: GraphObject(imageID, startX, startY, direction, depth), m_world(world), alive(true)
+		: GraphObject(imageID, startX, startY, direction, depth), m_world(world), alive(true), isHit(false)
 	{}
 
 	virtual void doSomething() = 0;
 
 	int validMoveDirection(int currDir) const;
-
 	void changeSpriteDirection(int moveDir);
-
 	int getRandValidDir() const;
-
 	bool isFork() const;
 
 	bool isAlive() const;
-
 	void setInactive();
 
 	virtual bool isSquare() const = 0;
+	virtual bool canBeHit() const = 0;
 
 	StudentWorld* getWorld() const;
+
+	void setIsHit(bool hit);
+	bool getIsHit() const;
 
 private:
 	StudentWorld* m_world;
 	bool alive;
+	bool isHit;
 };
 
 class Player : public Actor
@@ -43,8 +42,8 @@ class Player : public Actor
 public:
 	Player(StudentWorld* world, int imageID, int startX, int startY, int playerNum)
 		: Actor(world, imageID, startX, startY), ticks_to_move(0), currDir(right),
-		waiting(true), dice(0), pNum(playerNum), vortex(0), coins(0), stars(0), isNew(true),
-		onDirSquare(false), isTeleported(false)
+		waiting(true), pNum(playerNum), vortex(0), coins(0), stars(0), isNew(true),
+		onDirSquare(false), isTeleported(false), beHit(false)
 	{}
 
 	virtual void doSomething();
@@ -82,11 +81,12 @@ public:
 
 	void setOnDirSquare(bool isOn);
 	bool hasVortex() const;
+
 	virtual bool isSquare() const;
+	virtual bool canBeHit() const;
 
 private:
 	bool evalDirKey();
-	int dice;
 	int pNum;
 	int ticks_to_move;
 	int currDir;
@@ -97,6 +97,7 @@ private:
 	bool isNew;
 	bool onDirSquare;
 	bool isTeleported;
+	bool beHit;
 };
 
 
@@ -107,10 +108,11 @@ public:
 		: Actor(world, imageID, startX, startY, direction, depth)
 	{}
 
-	bool onObject(Player* player, int onOrPassing);
-	bool passingObject(Actor* player);
+	bool onObject(Player* player);
+	bool passingObject(Player* player);
 	
 	virtual bool isSquare() const = 0;
+	virtual bool canBeHit() const = 0;
 
 private:
 
@@ -119,14 +121,18 @@ private:
 class Vortex : public ActivatingObject
 {
 public:
-	Vortex(StudentWorld* world, int imageID, int startX, int startY, int direction)
-		: ActivatingObject(world, imageID, startX, startY, direction)
+	Vortex(StudentWorld* world, int imageID, int startX, int startY, int direction, int depth = 0)
+		: ActivatingObject(world, imageID, startX, startY, depth), currDir(direction), beHit(false)
 	{}
 
+	virtual void doSomething();
+
 	virtual bool isSquare() const;
+	virtual bool canBeHit() const;
 
 private:
-
+	int currDir;
+	bool beHit;
 };
 
 class Enemy : public ActivatingObject {
@@ -134,17 +140,13 @@ class Enemy : public ActivatingObject {
 public:
 	Enemy(StudentWorld* world, int imageID, int startX, int startY, int depth = 0)
 		: ActivatingObject(world, imageID, startX, startY, depth), paused(true), pauseCounter(180),
-		ticks(0), currDir(right), enemyIsNew(true)
+		ticks(0), currDir(right), enemyIsNew(true), beHit(true)
 	{}
 
 	virtual void doSomething();
 
 	virtual void changeCoinsStars(Player* player) = 0;
-
 	virtual void leaveDropping() = 0;
-
-	virtual bool isSquare() const;
-
 	bool enemyOnPlayer(Player* player);
 
 	// Paused
@@ -155,12 +157,16 @@ public:
 	int getPauseCounter() const;
 	void setPauseCounter(int count); 
 
+	virtual bool isSquare() const;
+	virtual bool canBeHit() const;
+
 private:
 	bool paused;
 	int pauseCounter;
 	int ticks;
 	int currDir;
 	bool enemyIsNew;
+	bool beHit;
 };
 
 
@@ -198,7 +204,7 @@ class Square : public ActivatingObject {
 
 public:
 	Square(StudentWorld* world, int imageID, int startX, int startY, int direction = right, int depth = 1)
-		: ActivatingObject(world, imageID, startX, startY, depth, direction)
+		: ActivatingObject(world, imageID, startX, startY, depth, direction), beHit(false)
 	{}
 
 	virtual void doSomething();
@@ -206,9 +212,10 @@ public:
 	virtual void processAction(Player* player) = 0;
 
 	virtual bool isSquare() const;
+	virtual bool canBeHit() const;
 
 private:
-
+	bool beHit;
 };
 
 class CoinSquare : public Square

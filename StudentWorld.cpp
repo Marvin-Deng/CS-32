@@ -3,10 +3,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-
 using namespace std;
-
-// Students:  Add code to this file, StudentWorld.h, Actor.h, and Actor.cpp
 
 GameWorld* createStudentWorld(string assetPath)
 {
@@ -72,27 +69,33 @@ bool StudentWorld::isValidPos(int newX, int newY) const {
     }
 }
 
-// must exclude vortex projectiles
+//// SQUARE AND ENEMY FUNCTIONS ////
+
+// Event square random teleport
 void StudentWorld::getRandomPoint(int currX, int currY, int& randX, int& randY) {
     bool found = false;
     while (!found) {
         int randIdx = randInt(0, actors.size() - 1);
-        int newX = actors[randIdx]->getX();
-        int newY = actors[randIdx]->getY();
-        if (currX != newX && currY != newY) {
-            found = true;
+        Actor* actor = actors[randIdx];
+        if (actor == nullptr) {
+            continue;
+        }
+        int newX = actor->getX();
+        int newY = actor->getY();
+        if (currX != newX && currY != newY && actor->isSquare()) { // can't be current position or on a vortex
             randX = newX;
             randY = newY;
+            found = true;
         }
     }
 }
 
-// Event Square swap
 void StudentWorld::swapPlayers() {
 
     // Swap position
     int peachX = peach->getX(), peachY = peach->getY();
     int yoshiX = yoshi->getX(), yoshiY = yoshi->getY();
+
     peach->moveTo(yoshiX, yoshiY);
     yoshi->moveTo(peachX, peachY);
     
@@ -115,9 +118,9 @@ void StudentWorld::swapPlayers() {
     yoshi->setWaiting(peachW);
 }
 
-// Boo coin swap
+// Boo: coin swap
 void StudentWorld::swapCoinsStars() {
-    int swap = randInt(1, 1); // change to (1, 2)
+    int swap = randInt(1, 2); // (1, 2)
     if (swap == 1) { // Swap coins
         int peachCoins = peach->getPlayerCoins();
         int yoshiCoins = yoshi->getPlayerCoins();
@@ -132,17 +135,42 @@ void StudentWorld::swapCoinsStars() {
     }
 }
 
+// Bowser: add droppping square
 void StudentWorld::addDroppingSquare(int x, int y) {
-    for (Actor* actor : actors) {
-        if (actor->getX() == x && actor->getY() == y && actor->isSquare() && actor != nullptr) {
-            //delete actor;
-            actor = new DroppingSquare(this, IID_DROPPING_SQUARE, x, y);
-            
+    for (int i = 0; i < static_cast<int>(actors.size()); i++) {
+        if (actors[i]->getX() == x && actors[i]->getY() == y && actors[i]->isSquare()) {
+            delete actors[i];
+            actors[i] = new DroppingSquare(this, IID_DROPPING_SQUARE, x, y);
         }
     }
 }
 
+// Player: add vortex
+void StudentWorld::addVortex(int x, int y, int dir) {
+    int addX = 0, addY = 0;
+    if (dir == 0) {
+        addX = SPRITE_WIDTH;
+    } else if (dir == 180) {
+        addX = -SPRITE_WIDTH;
+    } else if (dir == 90) {
+        addY = SPRITE_HEIGHT;
+    } else if (dir == 270) {
+        addY = -SPRITE_HEIGHT;
+    }
+    actors.push_back(new Vortex(this, IID_VORTEX, x + addX, y + addY, dir));
+}
 
+// Vortex: check hit by vortex
+bool StudentWorld::hitByVortex(int x, int y) const {
+    for (int i = 0; i < static_cast<int>(actors.size()); i++) {
+        Actor* actor = actors[i];
+        if (actor->canBeHit() && abs(x - actor->getX()) < SPRITE_WIDTH && abs(y - actor->getY()) < SPRITE_HEIGHT) {
+            actors[i]->setIsHit(true);
+            return true;
+        }
+    }
+    return false;
+}
 
 //// GAME FUNCTIONS ////
 
@@ -258,15 +286,16 @@ int StudentWorld::move()
     // Ask players and actors to do something
     peach->doSomething();
     yoshi->doSomething();
-    for (int i = 0; i < actors.size(); i++) {
-        Actor* a = actors[i];
-        if (a == nullptr) {
-            continue;
+
+    vector<Actor*>::iterator p = actors.begin();
+    while (p != actors.end()) {
+        (*p)->doSomething();
+        if (!(*p)->isAlive()) {
+            delete (*p);
+            p = actors.erase(p);
         }
-        a->doSomething();
-        if (!a->isAlive()) {
-            delete a;
-            a = nullptr;
+        else {
+            p++;
         }
     }
 
@@ -276,8 +305,8 @@ int StudentWorld::move()
 void StudentWorld::cleanUp()
 {
     // Delete vector of dynamically allocated objects
-    for (Actor* a : actors) {
-        delete a; 
+    for (int i = 0; i < static_cast<int>(actors.size()); i++) {
+        delete actors[i];
     }
     actors.clear(); // clears all elements of vector, makes size 0
 
@@ -289,6 +318,6 @@ void StudentWorld::cleanUp()
 }
 
 StudentWorld::~StudentWorld() { 
-    cleanUp();
+    //cleanUp();
     delete bd;
 }

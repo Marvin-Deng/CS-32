@@ -1,11 +1,8 @@
 #include "Actor.h"
 #include "StudentWorld.h"
-#include <algorithm>
 #include <cstdlib>
 #include <iostream>
 using namespace std;
-
-// Students:  Add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
 
 //// ACTOR /////
 int Actor::validMoveDirection(int currDir) const {
@@ -64,7 +61,6 @@ bool Actor::isFork() const {
 		getPositionInThisDirection(dir, SPRITE_WIDTH, newX, newY);
 		if (getWorld()->isValidPos(newX, newY)) {
 			ret++;
-			//cout << dir << " ";
 		}
 	}
 	return ret > 2;
@@ -82,6 +78,15 @@ bool Actor::isAlive() const {
 void Actor::setInactive() {
 	alive = false;
 }
+
+void Actor::setIsHit(bool hit) {
+	isHit = hit;
+}
+
+bool Actor::getIsHit() const {
+	return isHit;
+}
+
 //// PLAYER ////
 
 void Player::doSomething() {
@@ -104,13 +109,13 @@ void Player::doSomething() {
 		// Evaluate action key
 		int action = getWorld()->getAction(pNum);
 		if (action == ACTION_ROLL) {
-			dice = randInt(1,1); // chnage to (1,10)
+			int dice = randInt(8,8); // (1,10)
 			ticks_to_move = dice * 8;
 			waiting = false;
 			isNew = true;
 		}
-		else if (action == ACTION_FIRE) {
-
+		else if (action == ACTION_FIRE && hasVortex()) {
+			getWorld()->addVortex(getX(), getY(), currDir);
 			getWorld()->playSound(SOUND_PLAYER_FIRE);
 			vortex--;
 		}
@@ -123,9 +128,7 @@ void Player::doSomething() {
 	if (!waiting) {
 
 		if (getX() % SPRITE_WIDTH == 0 && getY() % SPRITE_HEIGHT == 0) {
-			if (!onDirSquare && isFork()) {
-				//cout << "Is fork" << endl;
-				//cout << "Curr: " << currDir << " ";
+			if (!onDirSquare && isFork()) { 
 				if (!evalDirKey()) {
 					return;
 				}
@@ -190,12 +193,10 @@ int Player::updateCoins(int c) {
 
 	if (coins + c < 0) {
 		coins = 0;
-		// std::cout << coins << "  ";
 		return coinsBeforeChange;
 	}
 	else {
 		coins += c;
-		// std::cout << coins << "  ";
 		return -1 * c;
 	}
 }
@@ -206,7 +207,6 @@ void Player::increaseStars() {
 	}
 	coins -= 20;
 	stars ++;
-	// std::cout << stars << "  ";
 }
 
 void Player::deductStar() {
@@ -241,6 +241,9 @@ int Player::getPlayerStars() const {
 }
 
 void Player::replaceStars(int s) {
+	if (s < 0) {
+		stars = 0;
+	}
 	stars = s;
 }
 
@@ -289,11 +292,14 @@ bool Player::isSquare() const {
 	return false;
 }
 
+bool Player::canBeHit() const {
+	return beHit;
+}
+
 //// ACTIVATING OBJECT ////
 
-// 1: Player stopped on object
-// 2: Player passes over object
-bool ActivatingObject::onObject(Player* player, int onOrPassing) {
+
+bool ActivatingObject::onObject(Player* player) {
 	int playerX = player->getX(), playerY = player->getY();
 	int objectX = getX(), objectY = getY();
 	bool playerWaiting = player->getWaiting();
@@ -303,22 +309,15 @@ bool ActivatingObject::onObject(Player* player, int onOrPassing) {
 	// - The player must be in the waiting mode
 	// - The player must be new
 
-	if (onOrPassing == 1 && playerX == objectX && playerY == objectY && playerWaiting && player->getIsNew()) {
+	if (playerX == objectX && playerY == objectY && playerWaiting && player->getIsNew()) {
 		player->setIsNew(false);
-		return true;
-	}
-
-	// Conditons for passing an object:
-	// - Pixel coordinates of player and object must match
-	// - Player is walking
-	if (onOrPassing == 2 && playerX == objectX && playerY == objectY && !playerWaiting) {
 		return true;
 	}
 
 	return false;
 }
 
-bool ActivatingObject::passingObject(Actor* player) {
+bool ActivatingObject::passingObject(Player* player) {
 	int movingX = player->getX(), movingY = player->getY();
 	int objectX = getX(), objectY = getY();
 
@@ -328,9 +327,46 @@ bool ActivatingObject::passingObject(Actor* player) {
 	return false;
 }
 
+//// VORTEX ////
+
+void Vortex::doSomething() {
+	if (!isAlive()) {
+		return;
+	}
+	moveAtAngle(currDir, 2); // move by 2 pixels
+	int x = getX(), y = getY();
+	if (x < 0 || x > VIEW_WIDTH || y < 0 || y > VIEW_HEIGHT) {
+		setInactive();
+	}
+	if (getWorld()->hitByVortex(x, y)) {
+		setInactive();
+		getWorld()->playSound(SOUND_HIT_BY_VORTEX);
+	}
+}
+
+bool Vortex::isSquare() const {
+	return false;
+}
+
+bool Vortex::canBeHit() const {
+	return beHit;
+}
+
 /// ENEMY ////
 
 void Enemy::doSomething() {
+
+	// Enemy hit by vortex
+	if (getIsHit()) {
+		int randX, randY;
+		getWorld()->getRandomPoint(getX(), getY(), randX, randY); // get random X and Y
+		moveTo(randX, randY); // Move to random location
+		currDir = right;
+		changeSpriteDirection(currDir);
+		paused = true;
+		ticks = 180;
+		setIsHit(false);
+	}
 
 	// WAITING STATE
 	if (paused) {
@@ -341,7 +377,7 @@ void Enemy::doSomething() {
 
 		pauseCounter--;
 		if (pauseCounter == 0) {
-			int dice = randInt(1, 1); // change to (1,10)
+			int dice = randInt(1, 1); // (1,10)
 			ticks = dice * 8;
 			currDir = getRandValidDir();
 			changeSpriteDirection(currDir);
@@ -372,7 +408,7 @@ void Enemy::doSomething() {
 		if (ticks == 0) {
 			paused = true;
 			pauseCounter = 180; // 180
-			int dice = randInt(1, 1); // (1, 4)
+			int dice = randInt(1, 4); // (1, 4)
 			if (dice == 1) {
 				leaveDropping();
 			}
@@ -397,10 +433,6 @@ bool Enemy::enemyOnPlayer(Player* player) {
 	return false;
 }
 
-bool Enemy::isSquare() const {
-	return false;
-}
-
 bool Enemy::isPaused() const {
 	return paused;
 }
@@ -416,17 +448,22 @@ void Enemy::setPauseCounter(int count) {
 	pauseCounter = count;
 }
 
-//// VORTEX ////
+bool Enemy::isSquare() const {
+	return false;
+}
+
+bool Enemy::canBeHit() const {
+	return beHit;
+}
 
 //// BOWSER ////
 
-
 void Bowser::changeCoinsStars(Player* player) {
-	if (onObject(player, 1) && enemyOnPlayer(player)) {
+	if (onObject(player) || enemyOnPlayer(player)) {
 		int lose = randInt(1, 2);
 		if (lose == 1) {
 			player->replaceCoins(0); // replace all player coins
-			player->replaceCoins(0); // replace all player stars
+			player->replaceStars(0); // replace all player stars
 			getWorld()->playSound(SOUND_BOWSER_ACTIVATE);
 		}
 	}
@@ -440,7 +477,7 @@ void Bowser::leaveDropping() {
 //// BOO ////
 
 void Boo::changeCoinsStars(Player* player) {
-	if (onObject(player, 1) && enemyOnPlayer(player)) {
+	if (onObject(player) || enemyOnPlayer(player)) {
 		getWorld()->swapCoinsStars();
 		getWorld()->playSound(SOUND_BOO_ACTIVATE);
 	}
@@ -449,7 +486,6 @@ void Boo::changeCoinsStars(Player* player) {
 void Boo::leaveDropping() {
 	// Leave empty
 }
-
 
 //// SQUARE ////
 
@@ -464,11 +500,14 @@ bool Square::isSquare() const {
 	return true;
 }
 
+bool Square::canBeHit() const {
+	return beHit;
+}
 
 //// COIN SQUARE ////
 
 void CoinSquare::processAction(Player* player) {
-	if (onObject(player, 1)) {
+	if (onObject(player)) {
 		player->updateCoins(coinsGiven);
 		coinSound();
 	}
@@ -486,7 +525,7 @@ void CoinSquare::coinSound() const {
 //// STAR SQUARE ////
 
 void StarSquare::processAction(Player* player) {
-	if (onObject(player, 1) || onObject(player, 2)) {
+	if (onObject(player) || (passingObject(player) && !player->getWaiting())) {
 		player->increaseStars(); // Increment by one star
 		getWorld()->playSound(SOUND_GIVE_STAR);
 	}
@@ -495,7 +534,7 @@ void StarSquare::processAction(Player* player) {
 //// DIRECTION SQUARE ////
 
 void DirectionSquare::processAction(Player* player) {
-	if (onObject(player, 1) || onObject(player, 2)) {
+	if (onObject(player) || passingObject(player)) {
 		player->changeMoveDir(dir);
 		player->setOnDirSquare(true);
 	}
@@ -506,35 +545,33 @@ void DirectionSquare::processAction(Player* player) {
 void BankSquare::processAction(Player* player) {
 
 	// Player is stopped on a bank square
-	if (onObject(player, 1)) {
+	if (onObject(player)) {
 		player->updateCoins(getWorld()->getBankCoins());
 		getWorld()->resetBankCoins();
-		//cout << "Stopped on bank square" << endl;
 	} 
 	// Player is passing over bank square
-	else if (onObject(player, 2)) {
+	else if (passingObject(player) && !player->getWaiting()) {
 		int coinsTaken = player->updateCoins(getWorld()->getCoinsTaken());
 		getWorld()->depositBankCoins(coinsTaken);
-		//cout << "Passing on bank square" << endl;
 	}
 }
 
 //// EVENT SQUARE ////
 
 void EventSquare::processAction(Player* player) {
-	if (!onObject(player, 1)) {
+	if (!onObject(player)) {
 		return;
 	}
-	int event = randInt(1, 3); // chnage to (1, 3)
+	int event = randInt(2, 2); // (1, 3)
 
 	if (event == 1) { // Teleport
 		player->playerTeleport();
 		getWorld()->playSound(SOUND_PLAYER_TELEPORT);
 	}
 	else if (event == 2) { // Position Swap
-		getWorld()->swapPlayers();
-		player->setIsNew(true); // allow the player to activate the coin it gets swapped to
 		getWorld()->playSound(SOUND_PLAYER_TELEPORT);
+		getWorld()->swapPlayers();
+		player->setIsNew(true); // Swapped player should activate coin square it teleports to
 	}
 	else if (event == 3) { // Give Vortex
 		player->giveVortex();
@@ -545,16 +582,15 @@ void EventSquare::processAction(Player* player) {
 //// DROPPING SQUARE ////                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      w
 
 void DroppingSquare::processAction(Player* player) {
-	if (onObject(player, 1)) {
+	if (onObject(player)) {
 		getWorld()->playSound(SOUND_DROPPING_SQUARE_ACTIVATE);
 		int dice = randInt(1, 2); // (1, 2)
 
-		if (dice == 1) { // Take 10 coins
+		if (dice == 1) { // Take 10 coins  
 			player->updateCoins(-10);
 		}
 		else if (dice == 2) { // Take 1 star
 			player->deductStar();
 		}
 	}
-
 }
