@@ -570,8 +570,9 @@ void EventSquare::processAction(Player* player) {
 	}
 	else if (event == 2) { // Position Swap
 		getWorld()->playSound(SOUND_PLAYER_TELEPORT);
-		getWorld()->swapPlayers();
-		player->setIsNew(true); // Swapped player should activate coin square it teleports to
+		if (getWorld()->swapPlayers()) {
+			//player->setIsNew(true);
+		}
 	}
 	else if (event == 3) { // Give Vortex
 		player->giveVortex();

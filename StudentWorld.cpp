@@ -90,12 +90,11 @@ void StudentWorld::getRandomPoint(int currX, int currY, int& randX, int& randY) 
     }
 }
 
-void StudentWorld::swapPlayers() {
-
+bool StudentWorld::swapPlayers() {
+    cout << "hi";
     // Swap position
     int peachX = peach->getX(), peachY = peach->getY();
     int yoshiX = yoshi->getX(), yoshiY = yoshi->getY();
-
     peach->moveTo(yoshiX, yoshiY);
     yoshi->moveTo(peachX, peachY);
     
@@ -116,6 +115,11 @@ void StudentWorld::swapPlayers() {
     int yoshiW = yoshi->getWaiting();
     peach->setWaiting(yoshiW);
     yoshi->setWaiting(peachW);
+
+    if (peachX == yoshiX && peachY == yoshiY) {
+        return false;
+    }
+    return true;
 }
 
 // Boo: coin swap
