@@ -27,7 +27,7 @@ public:
 	bool isValidPos(int newX, int newY) const;
 	void getRandomPoint(int currX, int currY, int& randX, int& randY);
 
-	bool swapPlayers(); // Event square
+	void swapPlayers(Player* player); // Event square
 	void swapCoinsStars(); // Boo
 	void addDroppingSquare(int x, int y); // Bowser
 	void addVortex(int x, int y, int dir); // Player

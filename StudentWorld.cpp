@@ -90,8 +90,8 @@ void StudentWorld::getRandomPoint(int currX, int currY, int& randX, int& randY) 
     }
 }
 
-bool StudentWorld::swapPlayers() {
-    cout << "hi";
+void StudentWorld::swapPlayers(Player* player) {
+
     // Swap position
     int peachX = peach->getX(), peachY = peach->getY();
     int yoshiX = yoshi->getX(), yoshiY = yoshi->getY();
@@ -116,10 +116,17 @@ bool StudentWorld::swapPlayers() {
     peach->setWaiting(yoshiW);
     yoshi->setWaiting(peachW);
 
-    if (peachX == yoshiX && peachY == yoshiY) {
-        return false;
+    Player* other;
+    if (player == peach) {
+        other = yoshi;
     }
-    return true;
+    else {
+        other = peach;
+    }
+    if (peachX != yoshiX && peachY != yoshiY) {
+        player->setIsNew(true);
+    }
+    other->setIsNew(false);
 }
 
 // Boo: coin swap
@@ -321,9 +328,12 @@ int StudentWorld::move()
     peach->doSomething();
     yoshi->doSomething();
 
+    for (int i = static_cast<int>(actors.size() - 1); i >= 0; i--) {
+        actors[i]->doSomething();
+    }
+
     vector<Actor*>::iterator p = actors.begin();
     while (p != actors.end()) {
-        (*p)->doSomething();
         if (!(*p)->isAlive()) {
             delete (*p);
             p = actors.erase(p);

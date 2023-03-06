@@ -109,7 +109,7 @@ void Player::doSomething() {
 		// Evaluate action key
 		int action = getWorld()->getAction(pNum);
 		if (action == ACTION_ROLL) {
-			int dice = randInt(8, 8); // (1,10)
+			int dice = randInt(1, 1); // (1,10)
 			ticks_to_move = dice * 8;
 			waiting = false;
 			isNew = true;
@@ -377,7 +377,7 @@ void Enemy::doSomething() {
 
 		pauseCounter--;
 		if (pauseCounter == 0) {
-			int dice = randInt(1, 10); // (1,10)
+			int dice = randInt(1, 1); // (1,10)
 			ticks = dice * 8;
 			currDir = getRandValidDir();
 			changeSpriteDirection(currDir);
@@ -562,7 +562,7 @@ void EventSquare::processAction(Player* player) {
 	if (!onObject(player)) {
 		return;
 	}
-	int event = randInt(2, 2); // (1, 3)
+	int event = randInt(3, 3); // (1, 3)
 
 	if (event == 1) { // Teleport
 		player->playerTeleport();
@@ -570,9 +570,7 @@ void EventSquare::processAction(Player* player) {
 	}
 	else if (event == 2) { // Position Swap
 		getWorld()->playSound(SOUND_PLAYER_TELEPORT);
-		if (getWorld()->swapPlayers()) {
-			player->setIsNew(true);
-		}
+		getWorld()->swapPlayers(player);
 	}
 	else if (event == 3) { // Give Vortex
 		player->giveVortex();
