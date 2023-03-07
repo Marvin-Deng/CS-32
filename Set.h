@@ -1,10 +1,9 @@
-// Set.h
-
 #ifndef SET_INCLUDED
 #define SET_INCLUDED
 
-template<typename ItemType>
+#include <string>
 
+template<typename ItemType>
 class Set
 {
 public:
@@ -72,6 +71,12 @@ private:
     // Return pointer to first Node whose m_value >= value if present,
     // else m_head
 };
+
+template <class ItemType>
+inline Set<ItemType>::Set()
+{
+    //createEmpty();
+}
 
 
 // Declarations of non-member functions
