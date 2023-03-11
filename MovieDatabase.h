@@ -8,7 +8,7 @@ class Movie;
 
 class MovieDatabase
 {
-  public:
+public:
     MovieDatabase();
     bool load(const std::string& filename);
     Movie* get_movie_from_id(const std::string& id) const;
@@ -16,7 +16,7 @@ class MovieDatabase
     std::vector<Movie*> get_movies_with_actor(const std::string& actor) const;
     std::vector<Movie*> get_movies_with_genre(const std::string& genre) const;
 
-  private:
+private:
 };
 
 #endif // MOVIEDATABASE_INCLUDED
