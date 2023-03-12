@@ -36,7 +36,6 @@ bool UserDatabase::load(const string& filename)
     string email;
     vector<string> movies;
     int numMovies = 0;
-    bool isFirst = true;
 
     while (getline(infile, str)) {
         if (str.empty()) { // Empty line, insert new User profile
@@ -45,8 +44,8 @@ bool UserDatabase::load(const string& filename)
             email.clear();
             movies.clear();
             numMovies = 0;
-        }
-        if (name.empty()) { // First string is name
+        } 
+        else if (name.empty()) { // First string is name
             name = str;
         }
         else if (email.empty()) { // Second string is email

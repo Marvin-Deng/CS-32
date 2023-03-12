@@ -15,6 +15,7 @@ public:
 
 private:
     TreeMultimap<std::string, User*> m_map;
+    std::vector<std::string> m_emails;
     bool m_loaded;
 };
 
