@@ -77,14 +77,14 @@ bool MovieDatabase::load(const string& filename)
 
 // Inserts movies to a map 
 void MovieDatabase::insertIntoMap(TreeMultimap<std::string, Movie*>& map, vector<std::string> info, Movie* movie) {
-    for (string s : info) {
-        map.insert(s, movie);
+    for (int i = 0; i < info.size(); i++) {
+        map.insert(info[i], movie);
     }
 }
 
 // Split a string by commas, push words into vector
 void MovieDatabase::splitByComma(string text, vector<string>& info) {
-    string str;
+    string str = "";
     for (char c : text) {
         if (c == ',') { // If comma, push word into vector
             info.push_back(str);
@@ -99,7 +99,11 @@ void MovieDatabase::splitByComma(string text, vector<string>& info) {
 
 Movie* MovieDatabase::get_movie_from_id(const string& id) const
 {
-    return nullptr;  // Replace this line with correct code.
+    TreeMultimap<std::string, Movie*>::Iterator iter = m_movieIds.find(id);
+    if (iter.is_valid()) {
+        return iter.get_value();
+    }
+    return nullptr;
 }
 
 vector<Movie*> MovieDatabase::get_movies_with_director(const string& director) const

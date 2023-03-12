@@ -1,8 +1,10 @@
 #include "UserDatabase.h"
 #include "User.h"
+#include "MovieDatabase.h"
+#include "Movie.h"
+#include "treemm.h"
 #include <iostream>
 #include <string>
-#include "treemm.h"
 
 using namespace std;
 
@@ -38,9 +40,7 @@ void printUserInfo(User* u) {
 		cout << "No user in the database has that email address." << endl;
 		return;
 	}
-	else {
-		cout << "Name: " << u->get_full_name() << endl;
-	}
+	cout << "Name: " << u->get_full_name() << endl;
 	cout << "Email: " << u->get_email() << endl;
 	cout << "Movie Ids: " << endl;
 	vector<string> movieIDs = u->get_watch_history();
@@ -52,25 +52,63 @@ void printUserInfo(User* u) {
 
 void testUserDatabase() {
 	UserDatabase udb;
-	if (!udb.load(USER_DATAFILE)) {
-		cout << "Failed to load user data file " << USER_DATAFILE << "!" << endl;
+	if (!udb.load(TESTUSER_DATAFILE)) {
+		cout << "Failed to load user data file !" << endl;
 		return;
 	}
 	else {
 		cout << "File found" << endl;
 	}
-	// tetsUSer.txt tests
-	//printUserInfo(udb.get_user_from_email("c@gmail.com"));
-	//printUserInfo(udb.get_user_from_email("s@gmail.com"));
+	// testUser.txt tests
+	printUserInfo(udb.get_user_from_email("c@gmail.com"));
+	printUserInfo(udb.get_user_from_email("s@gmail.com"));
 
 	// users.txt tests
-	printUserInfo(udb.get_user_from_email("BrunB@yahoo.com"));
-	printUserInfo(udb.get_user_from_email("AbFow2483@charter.net"));
+	//printUserInfo(udb.get_user_from_email("BrunB@yahoo.com"));
+	//printUserInfo(udb.get_user_from_email("AbFow2483@charter.net"));
+}
+
+void printMovieInfo(Movie* m) {
+	if (m == nullptr) {
+		cout << "No user in the database with that key." << endl;
+		return;
+	}
+	cout << "ID: " << m->get_id() << endl;
+	cout << "Title: " << m->get_title() << endl;
+	cout << "Year: " << m->get_release_year() << endl;
+	for (string s : m->get_directors()) {
+		cout << s << ", ";
+	}
+	cout << endl;
+	for (string s : m->get_actors()) {
+		cout << s << ", ";
+	}
+	cout << endl;
+	for (string s : m->get_genres()) {
+		cout << s << ", ";
+	}
+	cout << endl;
+	cout << "Rating: " << m->get_rating();
+	cout << endl << endl;
+}
+
+void testMovieDatabases() {
+	MovieDatabase udb;
+	if (!udb.load(TESTMOVIE_DATAFILE)) {
+		cout << "Failed to load user data file !" << endl;
+		return;
+	}
+	else {
+		cout << "File found" << endl;
+	}
+	// ID
+	printMovieInfo(udb.get_movie_from_id("ID25779"));
+	printMovieInfo(udb.get_movie_from_id("ID35763"));
 }
 
 int main()
 {
 	//testTreeMap();
-	testUserDatabase();
-	
+	// testUserDatabase();
+	testMovieDatabases();
 }
