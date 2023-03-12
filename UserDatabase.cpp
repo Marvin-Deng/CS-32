@@ -69,7 +69,7 @@ bool UserDatabase::load(const string& filename)
 
 User* UserDatabase::get_user_from_email(const string& email) const
 {
-    // Get the iterator that points to the target key
+    // Get the iterator that points to the target email
     TreeMultimap<std::string, User*>::Iterator iter = m_map.find(email); 
     if (iter.is_valid()) {
         return iter.get_value();
