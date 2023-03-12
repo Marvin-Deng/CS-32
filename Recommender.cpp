@@ -6,13 +6,16 @@
 #include <vector>
 using namespace std;
 
-Recommender::Recommender(const UserDatabase& user_database,
-                         const MovieDatabase& movie_database)
+Recommender::Recommender(const UserDatabase& user_database, const MovieDatabase& movie_database)
 {
-    // Replace this line with correct code.
+    m_userData = user_database;
+    m_movieData = movie_database;
 }
 
 vector<MovieAndRank> Recommender::recommend_movies(const string& user_email, int movie_count) const
 {
+    User* user = m_userData.get_user_from_email(user_email);
+
     return vector<MovieAndRank>();  // Replace this line with correct code.
 }
+
