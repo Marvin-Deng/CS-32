@@ -5,7 +5,7 @@
 #include "MovieDatabase.h"
 #include "Movie.h"
 #include "User.h"
-#include <set>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -24,31 +24,33 @@ class Recommender
 public:
     Recommender(const UserDatabase& user_database, const MovieDatabase& movie_database);
     std::vector<MovieAndRank> recommend_movies(const std::string& user_email, int movie_count) const;
-    
-private:
-    struct cmp {
-        const MovieDatabase& movieData;
-        cmp(const MovieDatabase& mb) : movieData(mb) {}
 
-        bool compareMovies(const MovieAndRank a, const MovieAndRank b) const{
-            Movie* movieA = movieData.get_movie_from_id(a.movie_id);
-            Movie* movieB = movieData.get_movie_from_id(b.movie_id);
-            if (a.compatibility_score > b.compatibility_score) {
+private:
+    struct RecMovie {
+        int m_score;
+        float m_rating;
+        std::string m_name;
+
+        RecMovie(int score, float rating, std::string name)
+            : m_score(score), m_rating(rating), m_name(name)
+        {}
+
+        // Custom < for movies
+        bool operator<(const RecMovie& other) const {
+            if (m_score > other.m_score) { // Compare compatability score
                 return true;
             }
-            else if (movieA->get_rating() > movieB->get_rating()) {
+            else if (m_rating > other.m_rating) { // Compare rating
                 return true;
             }
-            else if (movieA->get_title() > movieB->get_title()) {
+            else if (m_name > other.m_name) { // compare name
                 return true;
             }
             return false;
         }
     };
-    std::set<MovieAndRank, cmp> m_movieRanking{ {cmp(m_movieData)} };
     UserDatabase m_userData;
     MovieDatabase m_movieData;
-    
 };
 
 #endif // RECOMMENDER_INCLUDED

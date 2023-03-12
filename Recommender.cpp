@@ -17,64 +17,65 @@ vector<MovieAndRank> Recommender::recommend_movies(const string& user_email, int
 {
     User* user = m_userData.get_user_from_email(user_email);
     vector<string> watchHistory = user->get_watch_history();
-    int numRecs = static_cast<int> (watchHistory.size());
+    int numRecs = static_cast<int> (watchHistory.size()); // Number of movies to reccomend
     if (numRecs <= 0) {
         return vector<MovieAndRank>();
     }
+
+    // Stores movies and compatability scores
     unordered_map<Movie*, int> movieToScore;
 
     // Loop through the user's eatch history and find related movies
     for (string id : watchHistory) {
         Movie* movie = m_movieData.get_movie_from_id(id);
-        
+
         int score = 0;
         vector<string> directors = movie->get_directors();
         vector<string> actors = movie->get_actors();
         vector<string> genres = movie->get_genres();
-        vector<Movie*> directorMovies;
-        vector<Movie*> actorMovies;
-        vector<Movie*> genreMovies;
 
-        // Get all the movies with the same directors, actors, and genres
+        // Evaluating Score // 
+        // 1. Get all the movies with the same directors, actors, and genres
+        // 2. Loop through the common director, actor, and genre movies and increase the score
         for (string dir : directors) {
-            directorMovies = m_movieData.get_movies_with_director(dir);
+            vector<Movie*> directorMovies; m_movieData.get_movies_with_director(dir);
+            for (Movie* movie : directorMovies) {
+                movieToScore[movie] += 20;
+            }
         }
         for (string actor : actors) {
-            actorMovies = m_movieData.get_movies_with_actor(actor);
+            vector<Movie*> actorMovies = m_movieData.get_movies_with_actor(actor);
+            for (Movie* movie : actorMovies) {
+                movieToScore[movie] += 30;
+            }
         }
         for (string genre : genres) {
-            genreMovies = m_movieData.get_movies_with_director(genre);
-        }
-
-        // Loop throught the common director, actor, and genre movies and determine the score
-        for (Movie* movie : directorMovies) {
-            movieToScore[movie] += 20;
-        }
-
-        for (Movie* movie : actorMovies) {
-            movieToScore[movie] += 30;
-        }
-
-        for (Movie* movie : genreMovies) {
-            movieToScore[movie] += 1;
+            vector<Movie*> genreMovies = m_movieData.get_movies_with_director(genre);
+            for (Movie* movie : genreMovies) {
+                movieToScore[movie] += 1;
+            }
         }
         directors.clear();
         actors.clear();
         genres.clear();
-        directorMovies.clear();
-        actorMovies.clear();
-        genreMovies.clear();
     }
-    
+
+    set<RecMovie> movieRanking;
 
     // Create MovieAndRank objects and insert into set with comaprator set
     unordered_map<Movie*, int>::iterator iter = movieToScore.begin();
     while (iter != movieToScore.end()) {
-        MovieAndRank rank(iter->first->get_id(), iter->second); // create MovieAndRank object
-        m_movieRanking.insert(rank);
+        string id = iter->first->get_id();
+        int score = iter->second;
+        string title = iter->first->get_title();
+        float rating = iter->first->get_rating();
+        RecMovie rec(score, rating, title);
+        movieRanking.insert(rec);
         iter++;
     }
 
+    // Get the top movie reccomendations
+   // MovieAndRank rank(id, score); // create MovieAndRank object
+
     return vector<MovieAndRank>();  // Replace this line with correct code.
 }
-
