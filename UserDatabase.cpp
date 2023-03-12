@@ -11,7 +11,14 @@ UserDatabase::UserDatabase() {
 }
 
 UserDatabase::~UserDatabase() {
-
+    TreeMultimap<std::string, User*>::Iterator iter;
+    for (int i = 0; i < m_emails.size(); i++) {
+        iter = m_map.find(m_emails.at(i));
+        if (iter.is_valid()) {
+            delete iter.get_value();
+        }
+        // cout << "Deleted" << endl;
+    }
 }
 
 bool UserDatabase::load(const string& filename)
@@ -29,9 +36,10 @@ bool UserDatabase::load(const string& filename)
     string email;
     vector<string> movies;
     int numMovies = 0;
+    bool isFirst = true;
 
     while (getline(infile, str)) {
-        if (str.empty()) { // Empty line, insert new User
+        if (str.empty()) { // Empty line, insert new User profile
             m_map.insert(email, new User(name, email, movies));
             name.clear();
             email.clear();
@@ -43,11 +51,12 @@ bool UserDatabase::load(const string& filename)
         }
         else if (email.empty()) { // Second string is email
             email = str;
+            m_emails.push_back(email);
         }
         else if (numMovies == 0) { // Third string is number of movies
             numMovies = stoi(str);
         }
-        else { // All other strings are movie IDs
+        else { // Other strings are movie IDs
             movies.push_back(str);
             numMovies--;
         }
