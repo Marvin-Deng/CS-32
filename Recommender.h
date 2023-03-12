@@ -30,7 +30,7 @@ private:
         const MovieDatabase& movieData;
         cmp(const MovieDatabase& mb) : movieData(mb) {}
 
-        bool compareMovies(MovieAndRank a, MovieAndRank b) {
+        bool compareMovies(const MovieAndRank a, const MovieAndRank b) const{
             Movie* movieA = movieData.get_movie_from_id(a.movie_id);
             Movie* movieB = movieData.get_movie_from_id(b.movie_id);
             if (a.compatibility_score > b.compatibility_score) {
@@ -45,9 +45,9 @@ private:
             return false;
         }
     };
+    std::set<MovieAndRank, cmp> m_movieRanking{ {cmp(m_movieData)} };
     UserDatabase m_userData;
     MovieDatabase m_movieData;
-    std::set<MovieAndRank, cmp> m_map{{cmp(m_movieData)}};
     
 };
 
