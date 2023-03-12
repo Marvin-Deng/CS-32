@@ -10,17 +10,6 @@ UserDatabase::UserDatabase() {
     m_loaded = false;
 }
 
-UserDatabase::~UserDatabase() {
-    TreeMultimap<std::string, User*>::Iterator iter;
-    for (int i = 0; i < m_emails.size(); i++) {
-        iter = m_map.find(m_emails.at(i));
-        if (iter.is_valid()) {
-            delete iter.get_value();
-        }
-        // cout << "Deleted" << endl;
-    }
-}
-
 bool UserDatabase::load(const string& filename)
 {
     if (m_loaded) { // Checks if file already loaded
@@ -39,7 +28,7 @@ bool UserDatabase::load(const string& filename)
 
     while (getline(infile, str)) {
         if (str.empty()) { // Empty line, insert new User profile
-            m_map.insert(email, new User(name, email, movies));
+            m_map.insert(email, User(name, email, movies));
             name.clear();
             email.clear();
             movies.clear();
@@ -61,7 +50,7 @@ bool UserDatabase::load(const string& filename)
         }
     } 
     if (!email.empty()) { // Last line was not empty, insert last User into map
-        m_map.insert(email, new User(name, email, movies));
+        m_map.insert(email, User(name, email, movies));
     }
     m_loaded = true;
     return true;
@@ -70,9 +59,9 @@ bool UserDatabase::load(const string& filename)
 User* UserDatabase::get_user_from_email(const string& email) const
 {
     // Get the iterator that points to the target email
-    TreeMultimap<std::string, User*>::Iterator iter = m_map.find(email); 
+    TreeMultimap<std::string, User>::Iterator iter = m_map.find(email); 
     if (iter.is_valid()) {
-        return iter.get_value();
+        return &iter.get_value();
     }
     return nullptr;  
 }

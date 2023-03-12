@@ -18,11 +18,11 @@ public:
 
 private:
     void splitByComma(std::string text, std::vector<std::string>& info);
-    void insertIntoMap(TreeMultimap<std::string, Movie*>& map, std::vector<std::string> info, Movie* movie);
-    TreeMultimap<std::string, Movie*> m_movieIds;
-    TreeMultimap<std::string, Movie*> m_movieDirectors;
-    TreeMultimap<std::string, Movie*> m_movieActors;
-    TreeMultimap<std::string, Movie*> m_movieGenres;
+    void insertIntoMap(TreeMultimap<std::string, Movie>& map, std::vector<std::string> info, Movie movie);
+    TreeMultimap<std::string, Movie> m_movieIds;
+    TreeMultimap<std::string, Movie> m_movieDirectors;
+    TreeMultimap<std::string, Movie> m_movieActors;
+    TreeMultimap<std::string, Movie> m_movieGenres;
     bool m_loaded;
 };
 

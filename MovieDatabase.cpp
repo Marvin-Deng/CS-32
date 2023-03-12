@@ -55,7 +55,7 @@ bool MovieDatabase::load(const string& filename)
             rating = stof(str);
 
             // Insert movie into maps
-            Movie* movie = new Movie(id, name, year, directors, actors, genres, rating);
+            Movie movie(id, name, year, directors, actors, genres, rating);
             m_movieIds.insert(id, movie);                      // Insert movie into ID map
             insertIntoMap(m_movieDirectors, directors, movie); // Insert movie into directors map
             insertIntoMap(m_movieActors, actors, movie);       // Insert movie into actors map
@@ -76,7 +76,7 @@ bool MovieDatabase::load(const string& filename)
 }
 
 // Inserts movies to a map 
-void MovieDatabase::insertIntoMap(TreeMultimap<std::string, Movie*>& map, vector<std::string> info, Movie* movie) {
+void MovieDatabase::insertIntoMap(TreeMultimap<std::string, Movie>& map, vector<std::string> info, Movie movie) {
     for (int i = 0; i < info.size(); i++) {
         map.insert(info[i], movie);
     }
@@ -99,30 +99,42 @@ void MovieDatabase::splitByComma(string text, vector<string>& info) {
 
 Movie* MovieDatabase::get_movie_from_id(const string& id) const
 {
-    TreeMultimap<std::string, Movie*>::Iterator iter = m_movieIds.find(id);
+    TreeMultimap<std::string, Movie>::Iterator iter = m_movieIds.find(id);
     if (iter.is_valid()) {
-        return iter.get_value();
+        return &iter.get_value();
     }
     return nullptr;
 }
 
 vector<Movie*> MovieDatabase::get_movies_with_director(const string& director) const
 {
-    vector<Movie*> ret;
-    TreeMultimap<std::string, Movie*>::Iterator iter = m_movieDirectors.find(director);
+    vector<Movie*> movies;
+    TreeMultimap<std::string, Movie>::Iterator iter = m_movieDirectors.find(director);
     while (iter.is_valid()) {
-        ret.push_back(iter.get_value());
+        movies.push_back(&iter.get_value());
         iter.advance();
-     }
-    return ret;
+    }
+    return movies;
 }
 
 vector<Movie*> MovieDatabase::get_movies_with_actor(const string& actor) const
 {
-    return vector<Movie*>();  // Replace this line with correct code.
+    vector<Movie*> movies;
+    TreeMultimap<std::string, Movie>::Iterator iter = m_movieActors.find(actor);
+    while (iter.is_valid()) {
+        movies.push_back(&iter.get_value());
+        iter.advance();
+    }
+    return movies;
 }
 
 vector<Movie*> MovieDatabase::get_movies_with_genre(const string& genre) const
 {
-    return vector<Movie*>();  // Replace this line with correct code.
+    vector<Movie*> movies;
+    TreeMultimap<std::string, Movie>::Iterator iter = m_movieGenres.find(genre);
+    while (iter.is_valid()) {
+        movies.push_back(&iter.get_value());
+        iter.advance();
+    }
+    return movies;
 }

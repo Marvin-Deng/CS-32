@@ -101,14 +101,33 @@ void testMovieDatabases() {
 	else {
 		cout << "File found" << endl;
 	}
+
+	//// testMovie.txt ////
+	
 	// ID
-	printMovieInfo(udb.get_movie_from_id("ID25779"));
-	printMovieInfo(udb.get_movie_from_id("ID35763"));
+	//printMovieInfo(udb.get_movie_from_id("ID25779"));
+	//printMovieInfo(udb.get_movie_from_id("ID35763"));
+
+	// Director
+	/*for (Movie* m : udb.get_movies_with_director("Will Anderson")) {
+		printMovieInfo(m);
+	}*/
+
+	// Actor
+	for (Movie* m : udb.get_movies_with_actor("Carl Lange")) {
+		printMovieInfo(m);
+	}
+
+	// Genre
+	/*for (Movie* m : udb.get_movies_with_genre("Horror")) {
+		printMovieInfo(m);
+	}*/
+
 }
 
 int main()
 {
 	//testTreeMap();
-	// testUserDatabase();
+	//testUserDatabase();
 	testMovieDatabases();
 }
