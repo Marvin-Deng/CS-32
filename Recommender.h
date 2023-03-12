@@ -5,7 +5,7 @@
 #include "MovieDatabase.h"
 #include "Movie.h"
 #include "User.h"
-#include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -27,9 +27,12 @@ public:
     
 private:
     struct cmp {
+        const MovieDatabase& movieData;
+        cmp(const MovieDatabase& mb) : movieData(mb) {}
+
         bool compareMovies(MovieAndRank a, MovieAndRank b) {
-            Movie* movieA = m_movieData.get_movie_from_id(a.movie_id);
-            Movie* movieB = m_movieData.get_movie_from_id(b.movie_id);
+            Movie* movieA = movieData.get_movie_from_id(a.movie_id);
+            Movie* movieB = movieData.get_movie_from_id(b.movie_id);
             if (a.compatibility_score > b.compatibility_score) {
                 return true;
             }
@@ -44,7 +47,7 @@ private:
     };
     UserDatabase m_userData;
     MovieDatabase m_movieData;
-    std::map<MovieAndRank, Movie, cmp> m_map;
+    std::set<MovieAndRank, cmp> m_map{{cmp(m_movieData)}};
     
 };
 
