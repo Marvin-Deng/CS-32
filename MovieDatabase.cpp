@@ -108,7 +108,13 @@ Movie* MovieDatabase::get_movie_from_id(const string& id) const
 
 vector<Movie*> MovieDatabase::get_movies_with_director(const string& director) const
 {
-    return vector<Movie*>();  // Replace this line with correct code.
+    vector<Movie*> ret;
+    TreeMultimap<std::string, Movie*>::Iterator iter = m_movieDirectors.find(director);
+    while (iter.is_valid()) {
+        ret.push_back(iter.get_value());
+        iter.advance();
+     }
+    return ret;
 }
 
 vector<Movie*> MovieDatabase::get_movies_with_actor(const string& actor) const
