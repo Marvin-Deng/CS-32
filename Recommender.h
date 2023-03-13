@@ -37,20 +37,19 @@ private:
 
         // Custom < for movies
         bool operator<(const RecMovie& other) const {
-            if (m_score > other.m_score) { // Compare compatability score
-                return true;
+            if (m_score != other.m_score) { // Compare compatability score
+                return m_score > other.m_score;
             }
-            else if (m_rating > other.m_rating) { // Compare rating
-                return true;
+            else if (m_rating != other.m_rating) { // Compare rating
+                return m_rating > other.m_rating;
             }
-            else if (m_name > other.m_name) { // compare name
-                return true;
+            else { // compare name
+                return m_name > other.m_name;
             }
-            return false;
         }
     };
-    UserDatabase m_userData;
-    MovieDatabase m_movieData;
+    const UserDatabase* m_userData;
+    const MovieDatabase* m_movieData;
 };
 
 #endif // RECOMMENDER_INCLUDED
