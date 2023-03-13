@@ -6,12 +6,12 @@
 
 class Movie
 {
-  public:
+public:
     Movie(const std::string& id, const std::string& title,
-          const std::string& release_year,
-          const std::vector<std::string>& directors,
-          const std::vector<std::string>& actors,
-          const std::vector<std::string>& genres, float rating);
+        const std::string& release_year,
+        const std::vector<std::string>& directors,
+        const std::vector<std::string>& actors,
+        const std::vector<std::string>& genres, float rating);
     std::string get_id() const;
     std::string get_title() const;
     std::string get_release_year() const;
@@ -20,14 +20,14 @@ class Movie
     std::vector<std::string> get_actors() const;
     std::vector<std::string> get_genres() const;
 
-  private:
-      std::string m_id;
-      std::string m_title;
-      std::string m_releaseYear;
-      std::vector<std::string> m_directors;
-      std::vector<std::string> m_actors;
-      std::vector<std::string> m_genres;
-      float m_rating;
+private:
+    std::string m_id;
+    std::string m_title;
+    std::string m_releaseYear;
+    std::vector<std::string> m_directors;
+    std::vector<std::string> m_actors;
+    std::vector<std::string> m_genres;
+    float m_rating;
 };
 
 #endif // MOVIE_INCLUDED

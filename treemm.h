@@ -1,6 +1,7 @@
 #ifndef TREEMULTIMAP_INCLUDED
 #define TREEMULTIMAP_INCLUDED
 #include <vector>
+#include <iostream>
 
 template <typename KeyType, typename ValueType>
 class TreeMultimap
@@ -42,7 +43,7 @@ public:
 
         bool is_valid() const
         {
-            if (m_iter == nullptr || m_idx == m_iter->m_vals.size()) {
+            if (m_iter == nullptr || m_idx >= m_iter->m_vals.size()) {
                 return false;
             }
             return true;
@@ -50,12 +51,7 @@ public:
 
         void advance()
         {
-            if (m_idx == m_iter->m_vals.size()) {
-                m_idx = 0;
-            }
-            else {
-                m_idx++;
-            }
+            m_idx++;
         }
 
     private:

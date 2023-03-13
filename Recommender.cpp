@@ -35,23 +35,22 @@ vector<MovieAndRank> Recommender::recommend_movies(const string& user_email, int
     
     // Loop through the user's eatch history and find related movies
     for (string id : watchHistory) {
-        Movie* movie = m_movieData->get_movie_from_id(id);
+        Movie* currMovie = m_movieData->get_movie_from_id(id);
 
-        int score = 0;
-        vector<string> directors = movie->get_directors();
-        vector<string> actors = movie->get_actors();
-        vector<string> genres = movie->get_genres();
+        vector<string> directors = currMovie->get_directors();
+        vector<string> actors = currMovie->get_actors();
+        vector<string> genres = currMovie->get_genres();
 
         // Evaluating Score 
         // 1. Get all the movies with the same directors, actors, and genres
         // 2. Loop through the common director, actor, and genre movies and increase the score
         for (string dir : directors) {
-            vector<Movie*> directorMovies; m_movieData->get_movies_with_director(dir);
+            vector<Movie*> directorMovies = m_movieData->get_movies_with_director(dir);
             for (Movie* movie : directorMovies) {
                 string id = movie->get_id();
                 if (watched.find(movie->get_id()) == watched.end()) {
                     movieToScore[id] += 20;
-                    //cout << movie->get_title() << " " << movieToScore[movie->get_id()] << endl;
+                    
                 }
             }
         }
@@ -65,7 +64,7 @@ vector<MovieAndRank> Recommender::recommend_movies(const string& user_email, int
             }
         }
         for (string genre : genres) {
-            vector<Movie*> genreMovies = m_movieData->get_movies_with_director(genre);
+            vector<Movie*> genreMovies = m_movieData->get_movies_with_genre(genre);
             for (Movie* movie : genreMovies) {
                 string id = movie->get_id();
                 if (watched.find(movie->get_id()) == watched.end()) {
@@ -86,10 +85,8 @@ vector<MovieAndRank> Recommender::recommend_movies(const string& user_email, int
     while (iter != movieToScore.end()) {
         string id = iter->first;
         int score = iter->second;
-        string title = m_movieData->get_movie_from_id(id)->get_title();
         float rating = m_movieData->get_movie_from_id(id)->get_rating();
-        //cout << title << " " << score << endl;
-
+        string title = m_movieData->get_movie_from_id(id)->get_title();
         RecMovie rec(score, rating, title);
         movieRanking[rec] = { id, score };
         iter++;

@@ -5,8 +5,8 @@
 using namespace std;
 
 Movie::Movie(const string& id, const string& title, const string& release_year,
-             const vector<string>& directors, const vector<string>& actors,
-             const vector<string>& genres, float rating)
+    const vector<string>& directors, const vector<string>& actors,
+    const vector<string>& genres, float rating)
 {
     m_id = id;
     m_title = title;

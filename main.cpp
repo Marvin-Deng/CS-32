@@ -21,18 +21,21 @@ void testTreeMap() {
 	tmm.insert("carey", 5);
 	tmm.insert("carey", 6);
 	tmm.insert("carey", 7);
+	tmm.insert("carey", 45);
+	tmm.insert("carey", 32);
+	tmm.insert("david", 25);
 	tmm.insert("david", 25);
 	tmm.insert("david", 425);
-	TreeMultimap<std::string, int>::Iterator it = tmm.find("david");
-	// prints 5, 6, and 7 in some order
-	/*std::cout << it.get_value();
-	it.advance();
-	std::cout << it.get_value();
-	it.advance();*/
+	TreeMultimap<std::string, int>::Iterator it = tmm.find("carey");
+
 	while (it.is_valid()) {
 		std::cout << it.get_value() << std::endl;
 		it.advance();
 	}
+	it = tmm.find("david");
+	if (it.is_valid())
+		std::cout << "David is in the multimap!\n";
+
 	it = tmm.find("laura");
 	if (!it.is_valid())
 		std::cout << "laura is not in the multimap!\n";
@@ -129,14 +132,14 @@ void testMovieDatabases() {
 
 void findMatches(const Recommender& r, const MovieDatabase& md, const string& user_email, int num_recommendations) {
 	// get up to ten movie recommendations for the user
-	vector<MovieAndRank> recommendations = r.recommend_movies(user_email, 10);
+	vector<MovieAndRank> recommendations = r.recommend_movies(user_email, num_recommendations);
 	if (recommendations.empty())
 		cout << "We found no movies to recommend :(.\n";
 	else {
 		for (int i = 0; i < recommendations.size(); i++) {
 			const MovieAndRank& mr = recommendations[i];
 			Movie* m = md.get_movie_from_id(mr.movie_id);
-			cout << i << ". " << m->get_title() << " ("
+			cout << i + 1 << ". " << m->get_title() << " ("
 				<< m->get_release_year() << ")\n Rating: "
 				<< m->get_rating() << "\n Compatibility Score: "
 				<< mr.compatibility_score << "\n";
@@ -146,7 +149,7 @@ void findMatches(const Recommender& r, const MovieDatabase& md, const string& us
 
 void testRecommender() {
 	UserDatabase udb;
-	if (!udb.load(REC_USER_DATAFILE)) {
+	if (!udb.load(USER_DATAFILE)) {
 		cout << "Failed to load user data file !" << endl;
 		return;
 	}
@@ -155,7 +158,7 @@ void testRecommender() {
 	}
 
 	MovieDatabase mdb;
-	if (!mdb.load(REC_MOVIE_DATAFILE)) {
+	if (!mdb.load(MOVIE_DATAFILE)) {
 		cout << "Failed to load movie data file !" << endl;
 		return;
 	}
@@ -164,8 +167,9 @@ void testRecommender() {
 	}
 
 	Recommender recs(udb, mdb);
+	//string email = "c@gmail.com";
+	string email = "ScRobe46@msn.com";
 	int numRecs = 10;
-	string email = "c@gmail.com";
 	findMatches(recs, mdb, email, numRecs);
 }
 
@@ -173,6 +177,6 @@ int main()
 {
 	//testTreeMap();
 	//testUserDatabase();
-	//testMovieDatabases();
-	testRecommender();
+	testMovieDatabases();
+	//testRecommender();
 }
