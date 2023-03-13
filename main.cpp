@@ -3,6 +3,7 @@
 #include "MovieDatabase.h"
 #include "Movie.h"
 #include "treemm.h"
+#include "Recommender.h"
 #include <iostream>
 #include <string>
 
@@ -12,6 +13,8 @@ const string USER_DATAFILE = "users.txt";
 const string TESTUSER_DATAFILE = "testUsers.txt";
 const string TESTMOVIE_DATAFILE = "testMovies.txt";
 const string MOVIE_DATAFILE = "movies.txt";
+const string REC_USER_DATAFILE = "recUsers.txt";
+const string REC_MOVIE_DATAFILE = "recMovies.txt";
 
 void testTreeMap() {
 	TreeMultimap<std::string, int> tmm;
@@ -122,12 +125,54 @@ void testMovieDatabases() {
 	/*for (Movie* m : udb.get_movies_with_genre("Horror")) {
 		printMovieInfo(m);
 	}*/
+}
 
+void findMatches(const Recommender& r, const MovieDatabase& md, const string& user_email, int num_recommendations) {
+	// get up to ten movie recommendations for the user
+	vector<MovieAndRank> recommendations = r.recommend_movies(user_email, 10);
+	if (recommendations.empty())
+		cout << "We found no movies to recommend :(.\n";
+	else {
+		for (int i = 0; i < recommendations.size(); i++) {
+			const MovieAndRank& mr = recommendations[i];
+			Movie* m = md.get_movie_from_id(mr.movie_id);
+			cout << i << ". " << m->get_title() << " ("
+				<< m->get_release_year() << ")\n Rating: "
+				<< m->get_rating() << "\n Compatibility Score: "
+				<< mr.compatibility_score << "\n";
+		}
+	}
+}
+
+void testRecommender() {
+	UserDatabase udb;
+	if (!udb.load(REC_USER_DATAFILE)) {
+		cout << "Failed to load user data file !" << endl;
+		return;
+	}
+	else {
+		cout << "User file found" << endl;
+	}
+
+	MovieDatabase mdb;
+	if (!mdb.load(REC_MOVIE_DATAFILE)) {
+		cout << "Failed to load movie data file !" << endl;
+		return;
+	}
+	else {
+		cout << "Movie file found" << endl;
+	}
+
+	Recommender recs(udb, mdb);
+	int numRecs = 10;
+	string email = "c@gmail.com";
+	findMatches(recs, mdb, email, numRecs);
 }
 
 int main()
 {
 	//testTreeMap();
 	//testUserDatabase();
-	testMovieDatabases();
+	//testMovieDatabases();
+	testRecommender();
 }
