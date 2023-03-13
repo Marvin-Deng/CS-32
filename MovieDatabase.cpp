@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <cctype>
 using namespace std;
 
 MovieDatabase::MovieDatabase()
@@ -29,10 +30,10 @@ bool MovieDatabase::load(const string& filename)
     vector<string> actors;
     vector<string> genres;
     float rating = 0;
-    while (getline(infile, str)) { 
+    while (getline(infile, str)) {
         if (str.empty()) { // Empty line, move to next movie info
             continue;
-        } 
+        }
         else if (id.empty()) { // 1st line is movie ID
             id = str;
         }
@@ -41,10 +42,10 @@ bool MovieDatabase::load(const string& filename)
         }
         else if (year.empty()) { // 3rd line is movie release year
             year = str;
-        } 
+        }
         else if (directors.empty()) { // 4th line contains movie's directors
             splitByComma(str, directors);
-        } 
+        }
         else if (actors.empty()) { // 5th line contains the movie's actors
             splitByComma(str, actors);
         }
@@ -76,9 +77,9 @@ bool MovieDatabase::load(const string& filename)
 }
 
 // Inserts movies to a map 
-void MovieDatabase::insertIntoMap(TreeMultimap<std::string, Movie>& map, vector<std::string> info, Movie movie) {
-    for (int i = 0; i < info.size(); i++) {
-        map.insert(info[i], movie);
+void MovieDatabase::insertIntoMap(TreeMultimap<std::string, Movie>& map, vector<std::string> info, const Movie& movie) {
+    for (string s : info) {
+        map.insert(toLowercase(s), movie);
     }
 }
 
@@ -97,9 +98,17 @@ void MovieDatabase::splitByComma(string text, vector<string>& info) {
     info.push_back(str); // Push last word into vector
 }
 
+string MovieDatabase::toLowercase(const string& s) const {
+    string val = "";
+    for (char c : s) {
+        val += tolower(c); // change string to lowercase
+    }
+    return val;
+}
+
 Movie* MovieDatabase::get_movie_from_id(const string& id) const
 {
-    TreeMultimap<std::string, Movie>::Iterator iter = m_movieIds.find(id);
+    TreeMultimap<std::string, Movie>::Iterator iter = m_movieIds.find(toLowercase(id));
     if (iter.is_valid()) {
         return &iter.get_value();
     }
@@ -109,7 +118,7 @@ Movie* MovieDatabase::get_movie_from_id(const string& id) const
 vector<Movie*> MovieDatabase::get_movies_with_director(const string& director) const
 {
     vector<Movie*> movies;
-    TreeMultimap<std::string, Movie>::Iterator iter = m_movieDirectors.find(director);
+    TreeMultimap<std::string, Movie>::Iterator iter = m_movieDirectors.find(toLowercase(director));
     while (iter.is_valid()) {
         movies.push_back(&iter.get_value());
         iter.advance();
@@ -120,7 +129,7 @@ vector<Movie*> MovieDatabase::get_movies_with_director(const string& director) c
 vector<Movie*> MovieDatabase::get_movies_with_actor(const string& actor) const
 {
     vector<Movie*> movies;
-    TreeMultimap<std::string, Movie>::Iterator iter = m_movieActors.find(actor);
+    TreeMultimap<std::string, Movie>::Iterator iter = m_movieActors.find(toLowercase(actor));
     while (iter.is_valid()) {
         movies.push_back(&iter.get_value());
         iter.advance();
@@ -131,7 +140,7 @@ vector<Movie*> MovieDatabase::get_movies_with_actor(const string& actor) const
 vector<Movie*> MovieDatabase::get_movies_with_genre(const string& genre) const
 {
     vector<Movie*> movies;
-    TreeMultimap<std::string, Movie>::Iterator iter = m_movieGenres.find(genre);
+    TreeMultimap<std::string, Movie>::Iterator iter = m_movieGenres.find(toLowercase(genre));
     while (iter.is_valid()) {
         movies.push_back(&iter.get_value());
         iter.advance();
