@@ -77,7 +77,7 @@ bool MovieDatabase::load(const string& filename)
 }
 
 // Inserts movies to a map 
-void MovieDatabase::insertIntoMap(TreeMultimap<std::string, Movie>& map, vector<std::string> info, Movie movie) {
+void MovieDatabase::insertIntoMap(TreeMultimap<std::string, Movie>& map, const vector<std::string>& info, Movie movie) {
     for (string s : info) {
         map.insert(s, movie);
     }
@@ -114,7 +114,7 @@ string MovieDatabase::fixCase(const string& s) const {
 
 Movie* MovieDatabase::get_movie_from_id(const string& id) const
 {
-    string str; 
+    string str;
     for (char c : id) {
         str += toupper(c); // ensures "ID" is capitalized 
     }
