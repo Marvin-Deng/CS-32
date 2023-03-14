@@ -18,7 +18,14 @@ Recommender::Recommender(const UserDatabase& user_database, const MovieDatabase&
 vector<MovieAndRank> Recommender::recommend_movies(const string& user_email, int movie_count) const
 {
     User* user = m_userData->get_user_from_email(user_email);
+
+    // Check if user is valid
+    if (user == nullptr) {
+        return vector<MovieAndRank>();
+    }
     vector<string> watchHistory = user->get_watch_history();
+    
+    // Check if number of recs is valid
     int numRecs = movie_count;
     if (numRecs <= 0) {
         return vector<MovieAndRank>();
@@ -34,13 +41,16 @@ vector<MovieAndRank> Recommender::recommend_movies(const string& user_email, int
     unordered_map<string, int> movieToScore;
     
     // Loop through the user's eatch history and find related movies
-    for (string id : watchHistory) {
+    for (int i = 0; i < watchHistory.size(); i++) {
+        string id = watchHistory[i];
         Movie* currMovie = m_movieData->get_movie_from_id(id);
-
+        if (currMovie == nullptr) {
+            cout << "hi";
+        }
         vector<string> directors = currMovie->get_directors();
         vector<string> actors = currMovie->get_actors();
         vector<string> genres = currMovie->get_genres();
-
+        
         // Evaluating Score 
         // 1. Get all the movies with the same directors, actors, and genres
         // 2. Loop through the common director, actor, and genre movies and increase the score
@@ -50,7 +60,6 @@ vector<MovieAndRank> Recommender::recommend_movies(const string& user_email, int
                 string id = movie->get_id();
                 if (watched.find(movie->get_id()) == watched.end()) {
                     movieToScore[id] += 20;
-                    
                 }
             }
         }
@@ -104,5 +113,6 @@ vector<MovieAndRank> Recommender::recommend_movies(const string& user_email, int
     }
     return movieRecs;
 }
+
 
 
