@@ -1,4 +1,3 @@
-
 #ifndef MOVIEDATABASE_INCLUDED
 #define MOVIEDATABASE_INCLUDED
 #include "treemm.h"
@@ -20,7 +19,7 @@ public:
 private:
     void splitByComma(std::string text, std::vector<std::string>& info);
     void insertIntoMap(TreeMultimap<std::string, Movie>& map, const std::vector<std::string>& info, Movie movie);
-    std::string fixCase(const std::string& s) const;
+    std::string toLowercase(const std::string& s) const;
     TreeMultimap<std::string, Movie> m_movieIds;
     TreeMultimap<std::string, Movie> m_movieDirectors;
     TreeMultimap<std::string, Movie> m_movieActors;
