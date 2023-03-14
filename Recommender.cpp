@@ -44,9 +44,7 @@ vector<MovieAndRank> Recommender::recommend_movies(const string& user_email, int
     for (int i = 0; i < watchHistory.size(); i++) {
         string id = watchHistory[i];
         Movie* currMovie = m_movieData->get_movie_from_id(id);
-        if (currMovie == nullptr) {
-            cout << "hi";
-        }
+
         vector<string> directors = currMovie->get_directors();
         vector<string> actors = currMovie->get_actors();
         vector<string> genres = currMovie->get_genres();
