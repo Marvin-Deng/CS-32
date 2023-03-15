@@ -43,7 +43,7 @@ private:
             else if (m_rating != other.m_rating) { // Compare rating
                 return m_rating > other.m_rating;
             }
-            else { // compare name
+            else { // Compare name
                 return m_name > other.m_name;
             }
         }

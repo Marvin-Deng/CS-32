@@ -57,7 +57,7 @@ bool MovieDatabase::load(const string& filename)
 
             // Insert movie into maps
             Movie movie(id, name, year, directors, actors, genres, rating);
-            m_movieIds.insert(toLowercase(id), movie);                      // Insert movie into ID map
+            m_movieIds.insert(toLowercase(id), movie);         // Insert movie into ID map
             insertIntoMap(m_movieDirectors, directors, movie); // Insert movie into directors map
             insertIntoMap(m_movieActors, actors, movie);       // Insert movie into actors map
             insertIntoMap(m_movieGenres, genres, movie);       // Insert genre into genres map
@@ -98,6 +98,7 @@ void MovieDatabase::splitByComma(string text, vector<string>& info) {
     info.push_back(str); // Push last word into vector
 }
 
+// Converts string to lowercase string
 string MovieDatabase::toLowercase(const string& s) const {
     string str = "";
     for (char c : s) {
@@ -105,6 +106,10 @@ string MovieDatabase::toLowercase(const string& s) const {
     }
     return str;
 }
+
+//// Get Functions ////
+// 1. Use the Iterator find() to get the iterator to the target value in the multimap
+// 2. Loop through the values at the node specified by the iterator
 
 Movie* MovieDatabase::get_movie_from_id(const string& id) const
 {

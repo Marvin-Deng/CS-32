@@ -6,7 +6,7 @@
 #include <set>
 #include <string>
 #include <vector>
-#include <iostream>
+
 using namespace std;
 
 Recommender::Recommender(const UserDatabase& user_database, const MovieDatabase& movie_database)
@@ -45,14 +45,16 @@ vector<MovieAndRank> Recommender::recommend_movies(const string& user_email, int
         string id = watchHistory[i];
         Movie* currMovie = m_movieData->get_movie_from_id(id);
 
-        vector<string> directors = currMovie->get_directors();
-        vector<string> actors = currMovie->get_actors();
-        vector<string> genres = currMovie->get_genres();
-        
+        // Check if the movie the user watched is in the movie database
+        if (currMovie == nullptr) {
+            return vector<MovieAndRank>();
+        }
+
+      
         // Evaluating Score 
         // 1. Get all the movies with the same directors, actors, and genres
         // 2. Loop through the common director, actor, and genre movies and increase the score
-        for (string dir : directors) {
+        for (string dir : currMovie->get_directors()) {
             vector<Movie*> directorMovies = m_movieData->get_movies_with_director(dir);
             for (Movie* movie : directorMovies) {
                 string id = movie->get_id();
@@ -61,7 +63,7 @@ vector<MovieAndRank> Recommender::recommend_movies(const string& user_email, int
                 }
             }
         }
-        for (string actor : actors) {
+        for (string actor : currMovie->get_actors()) {
             vector<Movie*> actorMovies = m_movieData->get_movies_with_actor(actor);
             for (Movie* movie : actorMovies) {
                 string id = movie->get_id();
@@ -70,7 +72,7 @@ vector<MovieAndRank> Recommender::recommend_movies(const string& user_email, int
                 }
             }
         }
-        for (string genre : genres) {
+        for (string genre : currMovie->get_genres()) {
             vector<Movie*> genreMovies = m_movieData->get_movies_with_genre(genre);
             for (Movie* movie : genreMovies) {
                 string id = movie->get_id();
@@ -79,9 +81,6 @@ vector<MovieAndRank> Recommender::recommend_movies(const string& user_email, int
                 }
             }
         }
-        directors.clear();
-        actors.clear();
-        genres.clear();
     }
 
     // Stores unqiue movie reccomendations and the movie id and score in sorted order
