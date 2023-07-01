@@ -1,5 +1,6 @@
 # Projects
 Project 2: Implemented a Set using a circular-doubly linked list
+<br>
 Project 3: Implemented a 2-player Mario Party game clone with different character, enemy, and game board functionalities
 Project 4: Implemented a movie and user database with search features using a BST
 
