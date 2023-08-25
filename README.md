@@ -14,7 +14,7 @@ HW 3: Recursion, maze solving, merge sort, virtual classes
 <br>
 HW 4: Vectors, linked lists, and iterators
 <br>
-HW 5: Trees
+HW 5: Binary Search Trees
 
 # Scores
 | Homework | Score   |
